@@ -183,6 +183,14 @@ impl PlayerAI for CodexAI {
         for tug in &state.my_tugs {
             let mut cmd = TugCommand::default();
             let tug_vel = tug.velocity_vec2();
+            let tug_health_ratio = tug.health / tug.max_health;
+            let low_tug_count = state.my_tugs.len() <= 2;
+            let nearby_enemy_rocket = state
+                .enemy_rockets
+                .iter()
+                .any(|r| state.distance(tug.position, r.position) < 900.0);
+            let should_repair_tug = tug_health_ratio < 0.45
+                || (tug_health_ratio < 0.7 && (low_tug_count || nearby_enemy_rocket));
             let is_defender = defender_tug_ids.contains(&tug.id);
             if let Some(carried_id) = tug.carrying {
                 if state
@@ -205,6 +213,24 @@ impl PlayerAI for CodexAI {
                             160.0
                         };
                         let desired_v = dir * desired_speed;
+                        let dv = desired_v - tug_vel;
+                        cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                        cmd.beam_target = Some(carried_id);
+                    }
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
+                }
+
+                if should_repair_tug {
+                    let to_station = dv2(state, tug.position, state.my_station.position);
+                    let dist = to_station.length();
+                    let dir = to_station.normalize_or_zero();
+                    if dist < beam_radius - 24.0 {
+                        cmd.beam_target = None;
+                        let escape = -dir * 70.0;
+                        cmd.thrust = [escape.x, escape.y];
+                    } else {
+                        let desired_v = dir * 145.0;
                         let dv = desired_v - tug_vel;
                         cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
                         cmd.beam_target = Some(carried_id);
@@ -253,6 +279,22 @@ impl PlayerAI for CodexAI {
                 }
 
                 cmd.beam_target = None;
+                cmds.tugs.insert(tug.id, cmd);
+                continue;
+            }
+
+            if should_repair_tug {
+                let to_station = dv2(state, tug.position, state.my_station.position);
+                let dist = to_station.length();
+                let dir = to_station.normalize_or_zero();
+                if dist < beam_radius - 18.0 {
+                    let escape = -dir * 60.0;
+                    cmd.thrust = [escape.x, escape.y];
+                } else {
+                    let desired_v = dir * 150.0;
+                    let dv = desired_v - tug_vel;
+                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                }
                 cmds.tugs.insert(tug.id, cmd);
                 continue;
             }
@@ -408,20 +450,26 @@ impl PlayerAI for CodexAI {
         }
 
         let repair_candidate = state
-            .my_rockets
+            .my_tugs
             .iter()
-            .map(|r| (r.id, r.health / r.max_health, r.position))
-            .chain(
-                state
-                    .my_tugs
-                    .iter()
-                    .map(|t| (t.id, t.health / t.max_health, t.position)),
-            )
-            .filter(|(_, ratio, pos)| {
+            .filter(|t| {
+                let ratio = t.health / t.max_health;
+                ratio < 0.95
+                    && (state.my_tugs.len() <= 2 || ratio < 0.75)
+                    && state.distance(state.my_station.position, t.position) <= beam_radius
+            })
+            .map(|t| (t.id, t.health / t.max_health, t.position, 0_u8))
+            .chain(state.my_rockets.iter().map(|r| {
+                (r.id, r.health / r.max_health, r.position, 1_u8)
+            }))
+            .filter(|(_, ratio, pos, _)| {
                 *ratio < 0.9 && state.distance(state.my_station.position, *pos) <= beam_radius
             })
-            .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
-        if let Some((id, _, _)) = repair_candidate {
+            .min_by(|a, b| {
+                a.3.cmp(&b.3)
+                    .then_with(|| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal))
+            });
+        if let Some((id, _, _, _)) = repair_candidate {
             cmds.station.repair_target = Some(id);
         }
 
