@@ -61,7 +61,8 @@ impl PlayerAI for CodexAI {
                         .unwrap_or(std::cmp::Ordering::Equal)
                 });
 
-            let (target_pos, target_vel, standoff) = if let Some(t) = station_threat {
+            let defend_station = station_threat.is_some() && rocket.id.0 % 2 == 0;
+            let (target_pos, target_vel, standoff) = if let Some(t) = station_threat.filter(|_| defend_station) {
                 (t.position, t.velocity, 180.0)
             } else if let Some(t) =
                 nearest_threat.filter(|t| state.distance(rocket.position, t.position) < 2200.0)
