@@ -185,14 +185,12 @@ impl PlayerAI for CodexAI {
             let tug_vel = tug.velocity_vec2();
             let tug_health_ratio = tug.health / tug.max_health;
             let low_tug_count = state.my_tugs.len() <= 2;
-            let critical_tug_count = state.my_tugs.len() <= 1;
             let nearby_enemy_rocket = state
                 .enemy_rockets
                 .iter()
                 .any(|r| state.distance(tug.position, r.position) < 900.0);
             let should_repair_tug = tug_health_ratio < 0.45
-                || (tug_health_ratio < 0.7 && (low_tug_count || nearby_enemy_rocket))
-                || (tug_health_ratio < 0.85 && critical_tug_count);
+                || (tug_health_ratio < 0.7 && (low_tug_count || nearby_enemy_rocket));
             let is_defender = defender_tug_ids.contains(&tug.id);
             if let Some(carried_id) = tug.carrying {
                 if state
@@ -461,12 +459,9 @@ impl PlayerAI for CodexAI {
                     && state.distance(state.my_station.position, t.position) <= beam_radius
             })
             .map(|t| (t.id, t.health / t.max_health, t.position, 0_u8))
-            .chain(
-                state
-                    .my_rockets
-                    .iter()
-                    .map(|r| (r.id, r.health / r.max_health, r.position, 1_u8)),
-            )
+            .chain(state.my_rockets.iter().map(|r| {
+                (r.id, r.health / r.max_health, r.position, 1_u8)
+            }))
             .filter(|(_, ratio, pos, _)| {
                 *ratio < 0.9 && state.distance(state.my_station.position, *pos) <= beam_radius
             })
