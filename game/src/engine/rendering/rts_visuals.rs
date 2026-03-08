@@ -133,6 +133,42 @@ pub fn render_station_beam(
     }
 }
 
+/// Draw active station AI beam commands (e.g. bullet deflection).
+pub fn render_station_ai_beams(
+    active_beams: Res<crate::engine::units::components::ActiveStationBeams>,
+    bounds: Res<WorldBounds>,
+    mut gizmos: Gizmos,
+    time: Res<Time>,
+) {
+    let t = time.elapsed_secs();
+
+    for &(station_pos, target_pos, ref team) in &active_beams.beams {
+        let delta = bounds.shortest_delta(station_pos, target_pos);
+        let beam_len = delta.length();
+        if beam_len < 1.0 { continue; }
+
+        let dir = delta / beam_len;
+        let perp = Vec2::new(-dir.y, dir.x);
+
+        let beam_color = match team {
+            Team::Red => Color::srgba(1.0, 0.8, 0.3, 0.7),
+            Team::Blue => Color::srgba(0.3, 0.8, 1.0, 0.7),
+        };
+
+        // Draw pulsing beam rungs from station to target
+        let num_rungs = 6;
+        let rung_half_width = 8.0;
+        for i in 0..num_rungs {
+            let phase = ((t * 3.0 + i as f32 * 0.5) % 1.0);
+            let along = phase * beam_len;
+            let center = station_pos + dir * along;
+            let alpha = 0.7 * (1.0 - (phase - 0.5).abs() * 2.0).max(0.2);
+            let c = beam_color.with_alpha(alpha);
+            gizmos.line_2d(center - perp * rung_half_width, center + perp * rung_half_width, c);
+        }
+    }
+}
+
 /// Spawn exhaust particles behind tugs when they're thrusting.
 pub fn tug_exhaust_particles(
     mut commands: Commands,

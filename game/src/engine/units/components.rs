@@ -123,6 +123,21 @@ impl TeamResources {
 #[derive(Component)]
 pub struct ShootCooldown(pub f32);
 
+/// Active station beam effects for rendering (populated each tick by ai_bridge).
+#[derive(Resource, Default)]
+pub struct ActiveStationBeams {
+    /// (station_position, target_position, team)
+    pub beams: Vec<(bevy::math::Vec2, bevy::math::Vec2, Team)>,
+}
+
+/// Tracks beam lock acquisition state per station beam slot.
+/// Each slot tracks which entity it's locking onto and how long it's been acquiring.
+#[derive(Component)]
+pub struct StationBeamLocks {
+    /// (target_entity_bits, acquisition_progress) per slot
+    pub slots: Vec<(u64, f32)>,
+}
+
 /// Game tick counter.
 #[derive(Resource, Default)]
 pub struct TickCounter(pub u64);

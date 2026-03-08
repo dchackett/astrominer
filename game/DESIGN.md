@@ -4,7 +4,7 @@ AstroMiner is a programming game. Two AI teams (Red and Blue) compete in a real-
 
 ## World
 
-- **Toroidal space**: 10,000 x 10,000 units, wrapping on all edges
+- **Toroidal space**: 20,000 x 20,000 units, wrapping on all edges
 - **Deterministic**: Seeded RNG (ChaCha8), fixed 60Hz timestep
 - **No fog of war**: Both teams see the complete game state every tick
 
@@ -15,15 +15,16 @@ Each team has one station. Destroying the enemy station wins the game.
 
 | Stat | Value |
 |------|-------|
-| Health | 500 HP |
+| Health | 1000 HP |
 | Mass | 1000 |
-| Position | Red at (0, +2500), Blue at (0, -2500) |
+| Position | Red at (0, +5000), Blue at (0, -5000) |
 | Beam radius | 320 units |
 | Beam count | 5 simultaneous beams |
+| Beam acquire time | 0.1 seconds per new target |
 
 **Behaviors:**
 - **Tractor beam (auto)**: Automatically pulls small asteroids (tier 1-2) toward itself for mineral collection, repels large asteroids
-- **Tractor beam (AI-controlled)**: AI can direct up to `beam_count` beams at specific targets with force directions
+- **Tractor beam (AI-controlled)**: AI can direct up to `beam_count` beams at specific targets with force directions. Beams require a short acquisition delay (0.1s) when locking onto a new target, but maintain lock as long as the target stays in range. Can be used to deflect enemy bullets.
 - **Build queue**: AI can queue Rockets or Tugs for construction (costs minerals, takes time)
 - **Repair**: Automatically heals friendly units within beam radius at 5 HP/s
 - **Targeted repair**: AI can designate a specific unit for bonus healing (additional 5 HP/s)
@@ -38,7 +39,7 @@ Combat unit. Moves with directional thrust, rotates, and shoots bullets.
 | Mass | 5 |
 | Max thrust | 250 |
 | Rotation speed | 4 rad/s |
-| Cost | 100 minerals |
+| Cost | 50 minerals |
 | Build time | 5 seconds |
 
 **Controls** (per rocket, per tick):
@@ -46,7 +47,7 @@ Combat unit. Moves with directional thrust, rotates, and shoots bullets.
 - `rotation`: -1.0 to 1.0 — turning rate (CCW to CW)
 - `shoot`: bool — fire a bullet (subject to 0.2s cooldown)
 
-**Physics**: Thrust applies force in the direction the rocket is facing (local Y axis). Rotation changes heading. No friction — Newtonian physics, objects keep their velocity.
+**Physics**: Thrust applies force in the direction the rocket is facing (local Y axis). Rotation changes heading. No friction — Newtonian physics, objects keep their velocity. Rockets spawn facing away from their station.
 
 ### Tug
 Utility unit. Omnidirectional thrust, tractor beam for hauling asteroids.
@@ -56,7 +57,7 @@ Utility unit. Omnidirectional thrust, tractor beam for hauling asteroids.
 | Health | 60 HP |
 | Mass | 10 |
 | Max thrust | 100 |
-| Cost | 75 minerals |
+| Cost | 37.5 minerals |
 | Build time | 4 seconds |
 | Beam lock range | 112 units |
 | Beam break range | 200 units |
@@ -85,12 +86,12 @@ Six tiers of asteroids populate the field. Large asteroids fracture into smaller
 
 | Tier | Radius | Health | Initial count | Mineral value |
 |------|--------|--------|---------------|---------------|
-| 1 | 10 | 125 | 60 | 25 |
-| 2 | 20 | 250 | 40 | 50 |
-| 3 | 40 | 500 | 15 | — |
-| 4 | 80 | 1000 | 8 | — |
-| 5 | 160 | 2500 | 4 | — |
-| 6 | 320 | 5000 | 2 | — |
+| 1 | 10 | 125 | 120 | 25 |
+| 2 | 20 | 250 | 80 | 50 |
+| 3 | 40 | 500 | 40 | — |
+| 4 | 80 | 1000 | 20 | — |
+| 5 | 160 | 2500 | 64 | — |
+| 6 | 320 | 5000 | 32 | — |
 
 - **Gathering**: Only tier 1-2 asteroids can be collected for minerals. Tugs carry them to the station, and the station's tractor beam pulls them in.
 - **Fracturing**: When a tier 3+ asteroid is destroyed, it splits into 2-4 children of the next smaller tier.
@@ -101,7 +102,7 @@ Six tiers of asteroids populate the field. Large asteroids fracture into smaller
 
 - **Starting minerals**: 200 per team
 - **Income**: Minerals earned when tier 1-2 asteroids reach the station (25 or 50 minerals)
-- **Spending**: Building units (rockets 100, tugs 75) and station self-repair (2/HP)
+- **Spending**: Building units (rockets 50, tugs 37.5) and station self-repair (2/HP)
 
 ## Combat
 
@@ -109,6 +110,7 @@ Six tiers of asteroids populate the field. Large asteroids fracture into smaller
 - **Collision damage**: Units take damage from physical collisions proportional to impact speed (factor 0.1)
 - **Elastic collisions**: Units bounce off each other and off asteroids based on mass ratios
 - **Station bounce**: Units colliding with stations experience partially elastic bounce (0.8 energy retention)
+- **Bullet deflection**: Station tractor beams can target and deflect enemy bullets. Use `beam_targets` with a perpendicular `force_direction` for maximum deflection. Beams require 0.1s acquisition time per new target.
 
 ## Win Condition
 

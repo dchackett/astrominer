@@ -272,43 +272,68 @@ pub fn apply_station_commands(
 /// When AI provides beam_targets, those override the auto-behavior for the targeted entities.
 pub fn apply_station_beam_commands(
     player_ais: Res<PlayerAIs>,
-    stations: Query<(&Transform, &ShieldBubble, &Team), With<Station>>,
+    mut stations: Query<(&Transform, &ShieldBubble, &Team, &mut StationBeamLocks), With<Station>>,
     mut targets: Query<(&Transform, &mut Velocity, &Mass), Without<Station>>,
     bounds: Res<crate::engine::physics::WorldBounds>,
     config: Res<GameConfig>,
+    time: Res<Time<Fixed>>,
+    mut active_beams: ResMut<ActiveStationBeams>,
 ) {
-    for (station_tf, shield, team) in &stations {
-        let cmds = player_ais.commands(*team);
-        if cmds.station.beam_targets.is_empty() { continue; }
+    active_beams.beams.clear();
+    let dt = time.delta_secs();
+    let acquire_time = config.station.beam_acquire_time;
 
+    for (station_tf, shield, team, mut beam_locks) in &mut stations {
+        let cmds = player_ais.commands(*team);
         let station_pos = station_tf.translation.truncate();
         let max_beams = config.station.beam_count;
 
-        for (i, beam_cmd) in cmds.station.beam_targets.iter().enumerate() {
-            if i >= max_beams { break; }
+        // Update beam lock slots based on AI commands
+        for i in 0..max_beams {
+            if i >= beam_locks.slots.len() { break; }
 
-            let target_entity = id_to_entity(beam_cmd.target);
-            let Ok((target_tf, mut target_vel, target_mass)) = targets.get_mut(target_entity) else {
-                continue;
-            };
+            let requested_target = cmds.station.beam_targets.get(i)
+                .map(|bc| bc.target.0);
 
-            let target_pos = target_tf.translation.truncate();
-            let delta = bounds.shortest_delta(station_pos, target_pos);
-            let dist = delta.length();
+            let (ref mut locked_target, ref mut progress) = beam_locks.slots[i];
 
-            // Only affect entities within beam radius
-            if dist > shield.radius || dist < 0.1 { continue; }
-
-            let force_dir = Vec2::new(beam_cmd.force_direction[0], beam_cmd.force_direction[1]);
-            let force_dir = if force_dir.length() > 0.01 {
-                force_dir.normalize()
-            } else {
-                // Default: pull toward station
-                -delta.normalize()
-            };
-
-            let force = force_dir * config.station.pull_strength / target_mass.0;
-            target_vel.0 += force * (1.0 / 60.0);
+            match requested_target {
+                Some(target_bits) if target_bits == *locked_target && *progress >= acquire_time => {
+                    // Already locked — apply force
+                    let target_entity = id_to_entity(crate::api::EntityId(target_bits));
+                    let beam_cmd = &cmds.station.beam_targets[i];
+                    if let Ok((target_tf, mut target_vel, target_mass)) = targets.get_mut(target_entity) {
+                        let target_pos = target_tf.translation.truncate();
+                        let delta = bounds.shortest_delta(station_pos, target_pos);
+                        let dist = delta.length();
+                        if dist <= shield.radius && dist > 0.1 {
+                            let force_dir = Vec2::new(beam_cmd.force_direction[0], beam_cmd.force_direction[1]);
+                            let force_dir = if force_dir.length() > 0.01 {
+                                force_dir.normalize()
+                            } else {
+                                -delta.normalize()
+                            };
+                            let force = force_dir * config.station.pull_strength / target_mass.0;
+                            target_vel.0 += force * dt;
+                            active_beams.beams.push((station_pos, target_pos, *team));
+                        }
+                    }
+                }
+                Some(target_bits) if target_bits == *locked_target => {
+                    // Same target, still acquiring
+                    *progress += dt;
+                }
+                Some(target_bits) => {
+                    // New target — start acquisition
+                    *locked_target = target_bits;
+                    *progress = dt;
+                }
+                None => {
+                    // No target requested for this slot — clear
+                    *locked_target = 0;
+                    *progress = 0.0;
+                }
+            }
         }
     }
 }

@@ -77,6 +77,8 @@ pub struct StationConfig {
     pub self_repair_rate: f32,
     /// Resource cost per HP of self-repair
     pub repair_cost_per_hp: f32,
+    /// Time in seconds for a beam to lock onto a new target
+    pub beam_acquire_time: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -166,8 +168,8 @@ impl Default for GameConfig {
 impl Default for WorldConfig {
     fn default() -> Self {
         Self {
-            width: 10000.0,
-            height: 10000.0,
+            width: 20000.0,
+            height: 20000.0,
             tick_rate_hz: 60.0,
             rng_seed: 42,
         }
@@ -218,7 +220,7 @@ impl Default for StationConfig {
     fn default() -> Self {
         Self {
             mass: 1000.0,
-            health: 500.0,
+            health: 1000.0,
             radius: 80.0,
             num_sides: 8,
             beam_radius: 320.0,
@@ -233,6 +235,7 @@ impl Default for StationConfig {
             spawn_offset: 100.0,
             self_repair_rate: 2.0,
             repair_cost_per_hp: 2.0,
+            beam_acquire_time: 0.1,
         }
     }
 }
@@ -253,12 +256,12 @@ impl Default for AsteroidConfig {
     fn default() -> Self {
         Self {
             tiers: vec![
-                AsteroidTierConfig { radius: 10.0, vertices: 8, health: 125.0, spawn_count: 60, speed_scale: 1.0 },
-                AsteroidTierConfig { radius: 20.0, vertices: 10, health: 250.0, spawn_count: 40, speed_scale: 1.0 },
-                AsteroidTierConfig { radius: 40.0, vertices: 12, health: 500.0, spawn_count: 15, speed_scale: 1.0 },
-                AsteroidTierConfig { radius: 80.0, vertices: 16, health: 1000.0, spawn_count: 8, speed_scale: 0.5 },
-                AsteroidTierConfig { radius: 160.0, vertices: 22, health: 2500.0, spawn_count: 4, speed_scale: 0.3 },
-                AsteroidTierConfig { radius: 320.0, vertices: 28, health: 5000.0, spawn_count: 2, speed_scale: 0.15 },
+                AsteroidTierConfig { radius: 10.0, vertices: 8, health: 125.0, spawn_count: 120, speed_scale: 1.0 },
+                AsteroidTierConfig { radius: 20.0, vertices: 10, health: 250.0, spawn_count: 80, speed_scale: 1.0 },
+                AsteroidTierConfig { radius: 40.0, vertices: 12, health: 500.0, spawn_count: 40, speed_scale: 1.0 },
+                AsteroidTierConfig { radius: 80.0, vertices: 16, health: 1000.0, spawn_count: 20, speed_scale: 0.5 },
+                AsteroidTierConfig { radius: 160.0, vertices: 22, health: 2500.0, spawn_count: 64, speed_scale: 0.3 },
+                AsteroidTierConfig { radius: 320.0, vertices: 28, health: 5000.0, spawn_count: 32, speed_scale: 0.15 },
             ],
             mass_factor: 0.1,
             max_initial_speed: 30.0,
@@ -279,9 +282,9 @@ impl Default for EconomyConfig {
     fn default() -> Self {
         Self {
             starting_minerals: 200.0,
-            rocket_cost: 100.0,
+            rocket_cost: 50.0,
             rocket_build_time: 5.0,
-            tug_cost: 75.0,
+            tug_cost: 37.5,
             tug_build_time: 4.0,
             mineral_values: vec![25.0, 50.0],
         }

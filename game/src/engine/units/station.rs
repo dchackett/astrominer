@@ -23,6 +23,7 @@ pub fn spawn_stations(mut commands: Commands, config: Res<GameConfig>) {
         Team::Red,
         ShieldBubble { radius: config.station.beam_radius },
         BuildQueue(Vec::new()),
+        StationBeamLocks { slots: vec![(0, 0.0); config.station.beam_count] },
         Health::new(config.station.health),
         Mass(config.station.mass),
         Velocity(Vec2::ZERO),
@@ -39,6 +40,7 @@ pub fn spawn_stations(mut commands: Commands, config: Res<GameConfig>) {
         Team::Blue,
         ShieldBubble { radius: config.station.beam_radius },
         BuildQueue(Vec::new()),
+        StationBeamLocks { slots: vec![(0, 0.0); config.station.beam_count] },
         Health::new(config.station.health),
         Mass(config.station.mass),
         Velocity(Vec2::ZERO),
@@ -64,11 +66,15 @@ pub fn station_build_tick(
             bp.progress += dt;
             if bp.progress >= bp.total {
                 let pos = transform.translation.truncate();
-                let spawn_offset = Vec2::new(0.0, -config.station.spawn_offset);
-                let spawn_pos = pos + spawn_offset;
+                // Spawn away from station (toward enemy): Red spawns below, Blue spawns above
+                let away_dir = match *team {
+                    Team::Red => Vec2::new(0.0, -1.0),
+                    Team::Blue => Vec2::new(0.0, 1.0),
+                };
+                let spawn_pos = pos + away_dir * config.station.spawn_offset;
 
                 match bp.unit_type {
-                    UnitType::Rocket => spawn_rocket(&mut commands, spawn_pos, *team, &config),
+                    UnitType::Rocket => spawn_rocket(&mut commands, spawn_pos, *team, away_dir, &config),
                     UnitType::Tug => spawn_tug(&mut commands, spawn_pos, *team, &config),
                 }
 
@@ -95,11 +101,14 @@ pub fn station_build_tick(
     }
 }
 
-pub fn spawn_rocket(commands: &mut Commands, pos: Vec2, team: Team, config: &GameConfig) {
+pub fn spawn_rocket(commands: &mut Commands, pos: Vec2, team: Team, facing: Vec2, config: &GameConfig) {
     let vertices: Vec<Vec2> = config.rocket.vertices.iter()
         .map(|v| Vec2::new(v[0], v[1]))
         .collect();
     let lines = config.rocket.lines.clone();
+
+    // Rocket's forward is +Y, so rotate to match the facing direction
+    let angle = facing.y.atan2(facing.x) - std::f32::consts::FRAC_PI_2;
 
     commands.spawn((
         Rocket,
@@ -115,7 +124,8 @@ pub fn spawn_rocket(commands: &mut Commands, pos: Vec2, team: Team, config: &Gam
         AngularVelocity::default(),
         ShootCooldown(0.0),
         WireframeShape { vertices, lines },
-        Transform::from_xyz(pos.x, pos.y, 1.0),
+        Transform::from_xyz(pos.x, pos.y, 1.0)
+            .with_rotation(Quat::from_rotation_z(angle)),
         Visibility::default(),
     ));
 }

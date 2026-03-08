@@ -70,6 +70,7 @@ pub fn setup_hud(mut commands: Commands) {
 
 pub fn update_hud(
     resources: Res<TeamResources>,
+    player_ais: Res<PlayerAIs>,
     tick: Res<TickCounter>,
     stations: Query<(&Team, Option<&BuildProgress>, &BuildQueue, &Health), With<Station>>,
     rockets: Query<&Team, With<Rocket>>,
@@ -97,18 +98,21 @@ pub fn update_hud(
         match team { Team::Red => red_tugs += 1, Team::Blue => blue_tugs += 1 }
     }
 
+    let red_name = player_ais.red.name();
+    let blue_name = player_ais.blue.name();
+
     let mut red_info = String::new();
     let mut blue_info = String::new();
 
     for (team, progress, queue, health) in &stations {
         let minerals = resources.minerals(*team);
-        let (r_count, t_count) = match team {
-            Team::Red => (red_rockets, red_tugs),
-            Team::Blue => (blue_rockets, blue_tugs),
+        let (r_count, t_count, ai_name) = match team {
+            Team::Red => (red_rockets, red_tugs, red_name),
+            Team::Blue => (blue_rockets, blue_tugs, blue_name),
         };
         let mut s = format!(
-            "{:?}: {:.0} minerals | HP: {:.0}/{:.0} | R:{} T:{}",
-            team, minerals, health.current, health.max, r_count, t_count
+            "{:?} ({}): {:.0} minerals | HP: {:.0}/{:.0} | R:{} T:{}",
+            team, ai_name, minerals, health.current, health.max, r_count, t_count
         );
 
         if let Some(bp) = progress {

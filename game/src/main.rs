@@ -14,30 +14,31 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let headless = args.iter().any(|a| a == "--headless");
 
+    // Parse --red <name> and --blue <name> args
+    let red_name = get_arg(&args, "--red").unwrap_or_else(|| "example".to_string());
+    let blue_name = get_arg(&args, "--blue").unwrap_or_else(|| "example".to_string());
+
     // Load config from file or use defaults
     let config = GameConfig::load_or_default("config.toml");
 
     // Create player AIs
-    let mut red_ai = players::example_ai::ExampleAI::new();
-    let mut blue_ai = players::example_ai::ExampleAI::new();
+    let mut red_ai = create_ai(&red_name);
+    let mut blue_ai = create_ai(&blue_name);
     red_ai.init(&config, api::Team::Red);
     blue_ai.init(&config, api::Team::Blue);
 
-    let player_ais = PlayerAIs::new(
-        Box::new(red_ai),
-        Box::new(blue_ai),
-    );
+    println!("Red: {} vs Blue: {}", red_ai.name(), blue_ai.name());
+
+    let player_ais = PlayerAIs::new(red_ai, blue_ai);
 
     let mut app = App::new();
 
     if headless {
-        // Headless mode: minimal plugins, no window, no rendering
         app.add_plugins(MinimalPlugins);
     } else {
-        // Graphical mode: full rendering
         app.add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "AstroMiner".into(),
+                title: format!("AstroMiner — {} vs {}", red_name, blue_name).into(),
                 resolution: (1280u32, 720u32).into(),
                 ..default()
             }),
@@ -62,17 +63,33 @@ fn main() {
         .add_plugins(runner::LoggingPlugin);
 
     if headless {
-        // Speed up time and exit when game is over
         app.add_systems(Update, headless_speed_up)
             .add_systems(FixedUpdate, exit_on_game_over
                 .after(runner::game_log::write_game_log));
     } else {
-        // Graphical-only plugins
         app.add_plugins(engine::rendering::RenderingPlugin)
             .add_plugins(engine::debug::DebugPlugin);
     }
 
     app.run();
+}
+
+fn get_arg(args: &[String], flag: &str) -> Option<String> {
+    args.iter().position(|a| a == flag)
+        .and_then(|i| args.get(i + 1))
+        .cloned()
+}
+
+fn create_ai(name: &str) -> Box<dyn PlayerAI> {
+    match name {
+        "example" => Box::new(players::example_ai::ExampleAI::new()),
+        "aggressive_miner" => Box::new(players::aggressive_miner::AggressiveMinerAI::new()),
+        "do_nothing" => Box::new(players::do_nothing::DoNothingAI),
+        other => {
+            eprintln!("Unknown AI: '{}'. Available: example, aggressive_miner, do_nothing", other);
+            std::process::exit(1);
+        }
+    }
 }
 
 /// In headless mode, speed up virtual time so fixed timestep runs many ticks per frame.

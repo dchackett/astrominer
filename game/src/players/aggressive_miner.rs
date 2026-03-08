@@ -1,46 +1,43 @@
-//! Example AI that demonstrates how to use the PlayerAI trait.
-//! Competitive AI that mines asteroids AND attacks the enemy:
-//! - Rockets mine large asteroids early, then transition to attacking enemy station
-//! - Tugs gather small asteroids and deliver to station
-//! - Station builds units with adaptive ratio (more tugs early, more rockets later)
+//! AggressiveMiner AI — fast aggression with bullet deflection.
+//!
+//! Strategy:
+//! - Build 2 tugs for economy, then all rockets (replace tugs if lost)
+//! - Rockets attack enemy station immediately — no mining phase
+//! - Defend only when threats are very close to our station
+//! - Station tractor beams deflect incoming enemy bullets
+//! - Tugs prefer closer asteroids and avoid danger
 
 use std::collections::HashMap;
 use bevy::math::Vec2;
 use crate::api::*;
 use crate::config::GameConfig;
 
-/// Target types for rockets
 #[derive(Clone, Copy, PartialEq)]
-enum RocketTarget {
-    Asteroid(EntityId),
-    EnemyStation,
-    EnemyRocket(EntityId),
+enum RocketRole {
+    Attacking,
+    Defending(EntityId),
 }
 
-pub struct ExampleAI {
+pub struct AggressiveMinerAI {
     config: Option<GameConfig>,
     team: Option<Team>,
-    rocket_targets: HashMap<EntityId, RocketTarget>,
+    rocket_roles: HashMap<EntityId, RocketRole>,
     tug_targets: HashMap<EntityId, EntityId>,
-    builds_done: u32,
 }
 
-impl ExampleAI {
+impl AggressiveMinerAI {
     pub fn new() -> Self {
         Self {
             config: None,
             team: None,
-            rocket_targets: HashMap::new(),
+            rocket_roles: HashMap::new(),
             tug_targets: HashMap::new(),
-            builds_done: 0,
         }
     }
 }
 
-impl PlayerAI for ExampleAI {
-    fn name(&self) -> &str {
-        "ExampleAI"
-    }
+impl PlayerAI for AggressiveMinerAI {
+    fn name(&self) -> &str { "AggressiveMiner" }
 
     fn init(&mut self, config: &GameConfig, team: Team) {
         self.config = Some(config.clone());
@@ -49,148 +46,113 @@ impl PlayerAI for ExampleAI {
 
     fn tick(&mut self, state: &GameStateView) -> Commands {
         let mut cmds = Commands::default();
-
-        let large_asteroids: Vec<&AsteroidView> = state.asteroids.iter()
-            .filter(|a| a.tier >= 3)
-            .collect();
-
-        let num_rockets = state.my_rockets.len();
         let num_tugs = state.my_tugs.len();
 
-        // Decide how many rockets should attack vs mine
-        // Early game: all rockets mine. As asteroids deplete or we have enough rockets, attack.
-        let attack_rocket_count = if large_asteroids.is_empty() {
-            num_rockets // No asteroids left, everyone attacks
-        } else if num_rockets > 2 {
-            num_rockets / 2 // Send half to attack once we have a few
-        } else {
-            0
-        };
-
-        // Clean up dead targets
-        self.rocket_targets.retain(|rocket_id, target| {
-            // Check rocket still exists
-            if !state.my_rockets.iter().any(|r| r.id == *rocket_id) { return false; }
-            match target {
-                RocketTarget::Asteroid(id) => {
-                    state.asteroids.iter().any(|a| a.id == *id && a.tier >= 3)
-                }
-                RocketTarget::EnemyStation => state.enemy_station.health > 0.0,
-                RocketTarget::EnemyRocket(id) => {
-                    state.enemy_rockets.iter().any(|r| r.id == *id)
-                }
+        // === ROCKETS ===
+        // Clean dead rocket roles
+        self.rocket_roles.retain(|rid, role| {
+            if !state.my_rockets.iter().any(|r| r.id == *rid) { return false; }
+            match role {
+                RocketRole::Attacking => state.enemy_station.health > 0.0,
+                RocketRole::Defending(eid) => state.enemy_rockets.iter().any(|r| r.id == *eid),
             }
         });
 
-        // Count current attackers
-        let current_attackers = self.rocket_targets.values()
-            .filter(|t| matches!(t, RocketTarget::EnemyStation | RocketTarget::EnemyRocket(_)))
-            .count();
+        // Find threats near our station
+        let threats: Vec<&RocketView> = state.enemy_rockets.iter()
+            .filter(|er| state.distance(er.position, state.my_station.position) < 3000.0)
+            .collect();
 
-        // Assign rockets
+        // Count how many rockets are near our station (rally zone) vs already attacking
+        let rally_radius = 1500.0;
+        let rockets_near_home: usize = state.my_rockets.iter()
+            .filter(|r| state.distance(r.position, state.my_station.position) < rally_radius)
+            .count();
+        let rockets_attacking: usize = self.rocket_roles.values()
+            .filter(|r| matches!(r, RocketRole::Attacking))
+            .count();
+        // Attack when we have 3+ rockets near home, OR some are already committed to attack
+        let should_attack = rockets_near_home >= 3 || rockets_attacking > 0;
+
+        // Rally point: ahead of our station toward enemy
+        let station_pos = Vec2::new(state.my_station.position[0], state.my_station.position[1]);
+        let to_enemy = delta_vec2(state, state.my_station.position, state.enemy_station.position);
+        let rally_point = station_pos + to_enemy.normalize_or_zero() * 500.0;
+
         for rocket in &state.my_rockets {
-            // First priority: if we just spawned and are near our station, fly away
-            let dist_to_own_station = state.distance(rocket.position, state.my_station.position);
-            if dist_to_own_station < 200.0 {
-                // Just spawned — get clear of our station before doing anything else
+            // Spawn clearance — fly away from station after spawning
+            let dist_to_station = state.distance(rocket.position, state.my_station.position);
+            if dist_to_station < 200.0 {
                 let away = delta_vec2(state, state.my_station.position, rocket.position);
-                let away_dir = away.normalize_or_zero();
-                let cmd = fly_toward(rocket, away_dir * 300.0 + Vec2::new(rocket.position[0], rocket.position[1]));
+                let dir = away.normalize_or_zero();
+                let cmd = fly_toward(rocket, dir * 400.0 + Vec2::new(rocket.position[0], rocket.position[1]));
                 cmds.rockets.insert(rocket.id, cmd);
                 continue;
             }
 
-            // Decide role: mining or attacking
-            let should_attack = if let Some(target) = self.rocket_targets.get(&rocket.id) {
-                matches!(target, RocketTarget::EnemyStation | RocketTarget::EnemyRocket(_))
+            // Defend if there's a nearby threat
+            let closest_threat = if !threats.is_empty() {
+                threats.iter()
+                    .min_by(|a, b| {
+                        let da = state.distance(rocket.position, a.position);
+                        let db = state.distance(rocket.position, b.position);
+                        da.partial_cmp(&db).unwrap()
+                    })
+                    .copied()
+                    .filter(|t| state.distance(rocket.position, t.position) < 4000.0)
             } else {
-                current_attackers < attack_rocket_count
+                None
             };
 
-            let cmd;
+            let cmd = if let Some(threat) = closest_threat {
+                self.rocket_roles.insert(rocket.id, RocketRole::Defending(threat.id));
+                fly_and_shoot(state, rocket, threat.position, threat.velocity, 200.0)
+            } else if should_attack {
+                // Attack! Engage enemy rockets en route, otherwise go for station
+                self.rocket_roles.insert(rocket.id, RocketRole::Attacking);
 
-            if should_attack {
-                // ATTACK MODE: target enemy station or nearby enemy rockets
-                let nearby_threat = state.enemy_rockets.iter().find(|er| {
-                    let to_my_station = state.distance(er.position, state.my_station.position);
-                    to_my_station < 800.0
-                });
+                let nearby_enemy = state.enemy_rockets.iter()
+                    .min_by(|a, b| {
+                        let da = state.distance(rocket.position, a.position);
+                        let db = state.distance(rocket.position, b.position);
+                        da.partial_cmp(&db).unwrap()
+                    })
+                    .filter(|er| state.distance(rocket.position, er.position) < 800.0);
 
-                if let Some(threat) = nearby_threat {
-                    self.rocket_targets.insert(rocket.id, RocketTarget::EnemyRocket(threat.id));
-                    cmd = fly_and_shoot(state, rocket, threat.position, threat.velocity, 200.0);
+                if let Some(enemy) = nearby_enemy {
+                    fly_and_shoot(state, rocket, enemy.position, enemy.velocity, 200.0)
                 } else {
-                    self.rocket_targets.insert(rocket.id, RocketTarget::EnemyStation);
-                    cmd = fly_and_shoot(
+                    fly_and_shoot(
                         state, rocket,
                         state.enemy_station.position,
                         [0.0, 0.0],
-                        300.0,
-                    );
+                        350.0,
+                    )
                 }
             } else {
-                // MINE MODE: find and shoot large asteroids
-                let target = self.rocket_targets.get(&rocket.id)
-                    .and_then(|t| match t {
-                        RocketTarget::Asteroid(id) => state.asteroids.iter().find(|a| a.id == *id),
-                        _ => None,
-                    })
-                    .or_else(|| {
-                        let best = large_asteroids.iter()
-                            .min_by(|a, b| {
-                                let da = state.distance(rocket.position, a.position);
-                                let db = state.distance(rocket.position, b.position);
-                                da.partial_cmp(&db).unwrap()
-                            });
-                        if let Some(&&ref t) = best {
-                            self.rocket_targets.insert(rocket.id, RocketTarget::Asteroid(t.id));
-                        }
-                        best.copied()
-                    });
-
-                if let Some(target) = target {
-                    cmd = fly_and_shoot(
-                        state, rocket,
-                        target.position, target.velocity,
-                        250.0 + target.radius,
-                    );
-                } else {
-                    self.rocket_targets.insert(rocket.id, RocketTarget::EnemyStation);
-                    cmd = fly_and_shoot(
-                        state, rocket,
-                        state.enemy_station.position,
-                        [0.0, 0.0],
-                        300.0,
-                    );
-                }
-            }
+                // Rally near our station — wait for more rockets
+                self.rocket_roles.remove(&rocket.id);
+                fly_toward(rocket, rally_point)
+            };
 
             cmds.rockets.insert(rocket.id, cmd);
         }
 
-        // --- Tugs: gather small asteroids ---
+        // === TUGS ===
         let small_asteroids: Vec<&AsteroidView> = state.asteroids.iter()
             .filter(|a| a.tier <= 2)
             .collect();
 
-        // Clean up dead targets
         self.tug_targets.retain(|tug_id, target_id| {
-            // Remove if tug is gone
             if !state.my_tugs.iter().any(|t| t.id == *tug_id) { return false; }
-            // Remove if asteroid is gone
             state.asteroids.iter().any(|a| a.id == *target_id)
         });
 
-        // Track which asteroids are already claimed by a tug (carrying or targeted)
-        let mut claimed_asteroids: Vec<EntityId> = Vec::new();
+        let mut claimed: Vec<EntityId> = Vec::new();
         for tug in &state.my_tugs {
-            if let Some(carrying_id) = tug.carrying {
-                claimed_asteroids.push(carrying_id);
-            }
+            if let Some(c) = tug.carrying { claimed.push(c); }
         }
-        for target_id in self.tug_targets.values() {
-            claimed_asteroids.push(*target_id);
-        }
+        for tid in self.tug_targets.values() { claimed.push(*tid); }
 
         let beam_radius = state.my_station.beam_radius;
 
@@ -202,35 +164,29 @@ impl PlayerAI for ExampleAI {
                 let to_station = delta_vec2(state, tug.position, state.my_station.position);
                 let station_dist = to_station.length();
                 let desired_dir = to_station.normalize_or_zero();
-
-                // Release inside the station beam radius so the station can grab it
                 let drop_radius = beam_radius - 30.0;
+
                 if station_dist < drop_radius {
-                    // We're inside the beam zone — release the asteroid and get out
                     cmd.beam_target = None;
                     self.tug_targets.remove(&tug.id);
-                    // Fly away from station so we don't get sucked in
                     let away = -desired_dir;
                     let perp = Vec2::new(-away.y, away.x);
                     let escape = (away + perp * 0.5).normalize_or_zero() * 100.0;
                     cmd.thrust = [escape.x, escape.y];
                 } else if station_dist < drop_radius + 80.0 {
-                    // Approaching drop zone — slow down
-                    let approach_fraction = ((station_dist - drop_radius) / 80.0).clamp(0.0, 1.0);
-                    let desired_speed = approach_fraction * 120.0 + 20.0;
-                    let desired_vel = desired_dir * desired_speed;
+                    let frac = ((station_dist - drop_radius) / 80.0).clamp(0.0, 1.0);
+                    let desired_vel = desired_dir * (frac * 120.0 + 20.0);
                     let dv = desired_vel - tug_vel;
                     cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
                     cmd.beam_target = tug.carrying;
                 } else {
-                    // Far from station — fly toward it
                     let desired_vel = desired_dir * 150.0;
                     let dv = desired_vel - tug_vel;
                     cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
                     cmd.beam_target = tug.carrying;
                 }
             } else {
-                // Not carrying — find an unclaimed asteroid to pick up
+                // Find closest unclaimed small asteroid outside beam radius
                 let target_id = self.tug_targets.get(&tug.id).and_then(|id| {
                     small_asteroids.iter().find(|a| a.id == *id).map(|a| a.id)
                 });
@@ -238,19 +194,21 @@ impl PlayerAI for ExampleAI {
                 let target_id = target_id.unwrap_or_else(|| {
                     let best = small_asteroids.iter()
                         .filter(|a| {
-                            // Not already claimed by another tug
-                            !claimed_asteroids.contains(&a.id)
-                            // Not already inside station beam (station will grab it)
+                            !claimed.contains(&a.id)
                             && state.distance(a.position, state.my_station.position) > beam_radius
                         })
                         .min_by(|a, b| {
-                            let da = state.distance(tug.position, a.position);
-                            let db = state.distance(tug.position, b.position);
+                            // Prefer asteroids that are closer to us AND closer to our station
+                            // (less round-trip time)
+                            let da = state.distance(tug.position, a.position)
+                                + state.distance(a.position, state.my_station.position) * 0.5;
+                            let db = state.distance(tug.position, b.position)
+                                + state.distance(b.position, state.my_station.position) * 0.5;
                             da.partial_cmp(&db).unwrap()
                         });
                     if let Some(t) = best {
                         self.tug_targets.insert(tug.id, t.id);
-                        claimed_asteroids.push(t.id);
+                        claimed.push(t.id);
                         t.id
                     } else {
                         EntityId(0)
@@ -268,7 +226,7 @@ impl PlayerAI for ExampleAI {
                         cmd.beam_target = Some(target.id);
                     }
                 } else {
-                    // No targets — orbit away from station
+                    // No targets — patrol away from station
                     let to_station = delta_vec2(state, tug.position, state.my_station.position);
                     if to_station.length() < beam_radius + 100.0 {
                         let away = -to_station.normalize_or_zero();
@@ -282,18 +240,42 @@ impl PlayerAI for ExampleAI {
             cmds.tugs.insert(tug.id, cmd);
         }
 
-        // --- Station: adaptive build ---
+        // === STATION: DEFLECT INCOMING BULLETS ===
+        // Use tractor beams to push away enemy bullets headed toward our station
+        let station_pos = state.my_station.position;
+        let beam_radius = state.my_station.beam_radius;
+        let mut beam_cmds: Vec<BeamCommand> = Vec::new();
+
+        for bullet in &state.bullets {
+            if beam_cmds.len() >= 5 { break; } // Max 5 beams
+            if bullet.team == state.my_team { continue; } // Ignore our own bullets
+
+            let to_bullet = delta_vec2(state, station_pos, bullet.position);
+            let dist = to_bullet.length();
+            if dist > beam_radius { continue; } // Out of range
+
+            // Check if bullet is heading toward us
+            let bullet_vel = bullet.velocity_vec2();
+            let toward_station = -to_bullet.normalize_or_zero();
+            if bullet_vel.dot(toward_station) < 50.0 { continue; } // Not heading our way fast enough
+
+            // Push it away (perpendicular to its velocity for maximum deflection)
+            let perp = Vec2::new(-bullet_vel.y, bullet_vel.x).normalize_or_zero();
+            beam_cmds.push(BeamCommand {
+                target: bullet.id,
+                force_direction: [perp.x, perp.y],
+            });
+        }
+
+        if !beam_cmds.is_empty() {
+            cmds.station.beam_targets = beam_cmds;
+        }
+
+        // === STATION: BUILD ORDER ===
+        // 2 tugs for economy (replace if lost), then all rockets
         let minerals = state.my_station.resources;
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
-            // Early game (few units): prioritize 2 tugs then rockets
-            // Later: mostly rockets with occasional tug
-            let want_tug = if num_tugs == 0 {
-                true
-            } else if self.builds_done < 4 {
-                num_tugs < 2 // Get at least 2 tugs early
-            } else {
-                num_tugs < num_rockets / 2 // Keep ~1:2 tug:rocket ratio
-            };
+            let want_tug = num_tugs < 2; // Always maintain 2 tugs
 
             let unit = if want_tug { UnitTypeView::Tug } else { UnitTypeView::Rocket };
             let cost = match unit {
@@ -302,7 +284,6 @@ impl PlayerAI for ExampleAI {
             };
             if minerals >= cost {
                 cmds.station.build = Some(unit);
-                self.builds_done += 1;
             }
         }
 
@@ -310,8 +291,8 @@ impl PlayerAI for ExampleAI {
     }
 }
 
-/// Fly toward a target, maintaining standoff distance.
-/// Always checks for opportunistic shots regardless of flight phase.
+// === Shared helpers (same as example_ai) ===
+
 fn fly_and_shoot(
     state: &GameStateView,
     rocket: &RocketView,
@@ -328,13 +309,14 @@ fn fly_and_shoot(
     let dist = delta.length();
     let to_target = delta.normalize_or_zero();
 
-    // Lead the target: aim where it will be
+    // Lead the target: aim where it will be, not where it is
     let bullet_speed = 500.0;
+    let relative_vel = target_v - rocket_vel;
     let intercept_time = if dist > 10.0 { dist / bullet_speed } else { 0.0 };
     let lead_pos = delta + target_v * intercept_time;
     let to_lead = lead_pos.normalize_or_zero();
 
-    // Shoot if roughly aimed — be aggressive about shooting
+    // Shoot if roughly aimed at target — be aggressive about shooting
     let aim_alignment = forward.dot(to_lead);
     if dist < 700.0
         && aim_alignment > 0.85
@@ -344,7 +326,7 @@ fn fly_and_shoot(
         cmd.shoot = true;
     }
 
-    // Flight: face target, thrust toward standoff
+    // Flight: always face the target and thrust toward standoff
     let dist_error = dist - standoff;
     let approach_speed = if dist_error > 200.0 {
         180.0
@@ -366,11 +348,11 @@ fn fly_and_shoot(
     let delta_v = desired_vel - rocket_vel;
     let delta_v_mag = delta_v.length();
 
-    // Always rotate toward lead aim point
+    // Always rotate toward the lead aim point for shooting
     let cross = forward.perp_dot(to_lead);
     cmd.rotation = cross.clamp(-1.0, 1.0);
 
-    // Thrust for velocity correction
+    // Thrust based on velocity correction needs
     if delta_v_mag > 5.0 {
         let burn_dir = delta_v / delta_v_mag;
         let alignment = forward.dot(burn_dir);
@@ -386,7 +368,6 @@ fn fly_and_shoot(
     cmd
 }
 
-/// Simple "fly toward a point" for clearing station after spawn.
 fn fly_toward(rocket: &RocketView, target_pos: Vec2) -> RocketCommand {
     let mut cmd = RocketCommand::default();
     let forward = rocket.forward();
@@ -395,55 +376,40 @@ fn fly_toward(rocket: &RocketView, target_pos: Vec2) -> RocketCommand {
     let dir = delta.normalize_or_zero();
     let cross = forward.perp_dot(dir);
     cmd.rotation = cross.clamp(-1.0, 1.0);
-    if forward.dot(dir) > 0.5 {
-        cmd.thrust = 1.0;
-    }
+    if forward.dot(dir) > 0.5 { cmd.thrust = 1.0; }
     cmd
 }
 
-/// Check if any friendly unit (station, rocket, tug) is in the bullet's path.
-/// Uses a simple cone/corridor check along the rocket's forward direction.
 fn friendly_in_line_of_fire(state: &GameStateView, rocket: &RocketView, target_dist: f32) -> bool {
     let forward = rocket.forward();
     let rocket_pos = rocket.position;
-    let check_dist = target_dist.min(600.0); // Don't check beyond target or max range
-    let corridor_width = 30.0; // How wide a corridor to check for friendlies
+    let check_dist = target_dist.min(600.0);
+    let corridor = 30.0;
 
-    // Check own station
-    {
-        let delta = delta_vec2(state, rocket_pos, state.my_station.position);
-        let along = delta.dot(forward);
-        if along > 0.0 && along < check_dist {
-            let perp = (delta - forward * along).length();
-            if perp < corridor_width + 80.0 {
-                // Station is big, use generous radius
-                return true;
-            }
-        }
+    // Station
+    let delta = delta_vec2(state, rocket_pos, state.my_station.position);
+    let along = delta.dot(forward);
+    if along > 0.0 && along < check_dist {
+        let perp = (delta - forward * along).length();
+        if perp < corridor + 80.0 { return true; }
     }
 
-    // Check own rockets
+    // Rockets
     for r in &state.my_rockets {
         if r.id == rocket.id { continue; }
         let delta = delta_vec2(state, rocket_pos, r.position);
         let along = delta.dot(forward);
         if along > 0.0 && along < check_dist {
-            let perp = (delta - forward * along).length();
-            if perp < corridor_width {
-                return true;
-            }
+            if (delta - forward * along).length() < corridor { return true; }
         }
     }
 
-    // Check own tugs
+    // Tugs
     for t in &state.my_tugs {
         let delta = delta_vec2(state, rocket_pos, t.position);
         let along = delta.dot(forward);
         if along > 0.0 && along < check_dist {
-            let perp = (delta - forward * along).length();
-            if perp < corridor_width {
-                return true;
-            }
+            if (delta - forward * along).length() < corridor { return true; }
         }
     }
 
@@ -454,24 +420,25 @@ fn friendly_in_line_of_fire(state: &GameStateView, rocket: &RocketView, target_d
 fn asteroid_avoidance(state: &GameStateView, rocket: &RocketView) -> Option<Vec2> {
     let rocket_vel = rocket.velocity_vec2();
     let speed = rocket_vel.length();
-    if speed < 10.0 { return None; }
+    if speed < 10.0 { return None; } // Not moving fast enough to worry
 
     let vel_dir = rocket_vel / speed;
-    let look_ahead = 400.0;
-    let clearance = 40.0;
+    let look_ahead = 400.0; // How far ahead to check
+    let clearance = 40.0; // Extra margin around asteroids
 
-    let mut closest_threat: Option<(f32, Vec2)> = None;
+    let mut closest_threat: Option<(f32, Vec2)> = None; // (distance_along, perp_offset)
 
     for asteroid in &state.asteroids {
         let to_ast = delta_vec2(state, rocket.position, asteroid.position);
         let along = to_ast.dot(vel_dir);
-        if along < 0.0 || along > look_ahead { continue; }
+        if along < 0.0 || along > look_ahead { continue; } // Behind us or too far
 
         let perp_offset = to_ast - vel_dir * along;
         let perp_dist = perp_offset.length();
         let danger_radius = asteroid.radius + clearance;
 
         if perp_dist < danger_radius {
+            // This asteroid is in our path
             if closest_threat.is_none() || along < closest_threat.unwrap().0 {
                 closest_threat = Some((along, perp_offset));
             }
@@ -479,10 +446,12 @@ fn asteroid_avoidance(state: &GameStateView, rocket: &RocketView) -> Option<Vec2
     }
 
     if let Some((along, perp_offset)) = closest_threat {
-        let urgency = 1.0 - (along / look_ahead);
+        // Steer perpendicular to our velocity, away from the asteroid center
+        let urgency = 1.0 - (along / look_ahead); // More urgent when closer
         let avoid_dir = if perp_offset.length() > 1.0 {
-            -perp_offset.normalize_or_zero()
+            -perp_offset.normalize_or_zero() // Steer away from asteroid center
         } else {
+            // Dead center — pick a side (perpendicular to velocity)
             Vec2::new(-vel_dir.y, vel_dir.x)
         };
         Some(avoid_dir * 200.0 * urgency)

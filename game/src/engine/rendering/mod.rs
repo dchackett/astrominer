@@ -3,7 +3,8 @@ use bevy::mesh::PrimitiveTopology;
 use bevy::asset::RenderAssetUsages;
 
 use crate::engine::physics::components::*;
-use crate::engine::units::components::{Team, Rocket};
+use crate::engine::units::components::{Team, Rocket, Station, Tug};
+use crate::engine::rendering::camera::GameCamera;
 
 pub mod camera;
 pub mod dust;
@@ -35,9 +36,12 @@ impl Plugin for RenderingPlugin {
                     rts_visuals::render_station_beam_range,
                     rts_visuals::render_station_beam,
                     rts_visuals::render_tractor_beams,
+                    rts_visuals::render_station_ai_beams,
                     rts_visuals::tug_exhaust_particles,
                     hud::update_hud,
                     hud::render_health_bars,
+                    zoom_adaptive_visibility,
+                    render_zoomed_out_icons,
                 ),
             );
     }
@@ -92,6 +96,94 @@ fn sync_wireframe_meshes(
             MeshMaterial2d(materials.add(ColorMaterial::from_color(color))),
             WireframeMesh,
         ));
+    }
+}
+
+/// When zoomed out past a threshold, hide wireframe meshes so icons can take over.
+fn zoom_adaptive_visibility(
+    camera: Query<&Projection, With<GameCamera>>,
+    mut wireframes: Query<(&mut Visibility, Option<&Rocket>, Option<&Tug>, Option<&Station>), With<WireframeMesh>>,
+) {
+    let Ok(proj) = camera.single() else { return };
+    let scale = match proj {
+        Projection::Orthographic(o) => o.scale,
+        _ => 1.0,
+    };
+    // Hide wireframe details when a rocket (~20px) would be < 3 pixels on screen
+    let icon_threshold = 7.0;
+
+    for (mut vis, is_rocket, is_tug, is_station) in &mut wireframes {
+        if is_station.is_some() {
+            // Stations are big enough to always show
+            continue;
+        }
+        if (is_rocket.is_some() || is_tug.is_some()) && scale > icon_threshold {
+            *vis = Visibility::Hidden;
+        } else {
+            *vis = Visibility::Inherited;
+        }
+    }
+}
+
+/// Draw simple colored icons for units when zoomed out far.
+fn render_zoomed_out_icons(
+    camera: Query<&Projection, With<GameCamera>>,
+    rockets: Query<(&Transform, &Team), With<Rocket>>,
+    tugs: Query<(&Transform, &Team), With<Tug>>,
+    stations: Query<(&Transform, &Team), With<Station>>,
+    mut gizmos: Gizmos,
+) {
+    let Ok(proj) = camera.single() else { return };
+    let scale = match proj {
+        Projection::Orthographic(o) => o.scale,
+        _ => 1.0,
+    };
+
+    let icon_threshold = 7.0;
+    if scale <= icon_threshold { return; }
+
+    // Icon size scales with zoom so they stay visible
+    let icon_size = scale * 3.0;
+
+    for (tf, team) in &rockets {
+        let pos = tf.translation.truncate();
+        let color = match team {
+            Team::Red => Color::srgb(1.0, 0.3, 0.3),
+            Team::Blue => Color::srgb(0.3, 0.5, 1.0),
+        };
+        // Draw a small diamond for rockets
+        let up = Vec2::new(0.0, icon_size);
+        let right = Vec2::new(icon_size * 0.6, 0.0);
+        gizmos.line_2d(pos + up, pos + right, color);
+        gizmos.line_2d(pos + right, pos - up, color);
+        gizmos.line_2d(pos - up, pos - right, color);
+        gizmos.line_2d(pos - right, pos + up, color);
+    }
+
+    for (tf, team) in &tugs {
+        let pos = tf.translation.truncate();
+        let color = match team {
+            Team::Red => Color::srgb(1.0, 0.5, 0.3),
+            Team::Blue => Color::srgb(0.3, 0.7, 1.0),
+        };
+        // Draw a small square for tugs
+        let hs = icon_size * 0.5;
+        gizmos.line_2d(pos + Vec2::new(-hs, -hs), pos + Vec2::new(hs, -hs), color);
+        gizmos.line_2d(pos + Vec2::new(hs, -hs), pos + Vec2::new(hs, hs), color);
+        gizmos.line_2d(pos + Vec2::new(hs, hs), pos + Vec2::new(-hs, hs), color);
+        gizmos.line_2d(pos + Vec2::new(-hs, hs), pos + Vec2::new(-hs, -hs), color);
+    }
+
+    for (tf, team) in &stations {
+        let pos = tf.translation.truncate();
+        let color = match team {
+            Team::Red => Color::srgb(1.0, 0.3, 0.3),
+            Team::Blue => Color::srgb(0.3, 0.5, 1.0),
+        };
+        // Draw a large cross for stations
+        let s = icon_size * 2.0;
+        gizmos.line_2d(pos + Vec2::new(-s, 0.0), pos + Vec2::new(s, 0.0), color);
+        gizmos.line_2d(pos + Vec2::new(0.0, -s), pos + Vec2::new(0.0, s), color);
     }
 }
 

@@ -13,6 +13,7 @@ impl Plugin for UnitsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<TickCounter>()
             .init_resource::<game_rules::GameOverState>()
+            .init_resource::<ActiveStationBeams>()
             .add_systems(Startup, station::spawn_stations)
             // AI commands
             .add_systems(

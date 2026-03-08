@@ -8,15 +8,20 @@ AstroMiner is a programming game. You write a Rust AI that controls a team of un
 
 ### Run a game (graphical)
 ```bash
-cargo run
+cargo run -- --red aggressive_miner --blue example
 ```
 Controls: WASD to pan, scroll to zoom, P to pause. Works after game over too.
 
-### Run a game (headless, ~5 seconds)
+### Run a game (headless, ~10 seconds)
 ```bash
-cargo run -- --headless
+cargo run -- --headless --red aggressive_miner --blue example
 ```
 Outputs `game_log.json` with result, summary, events, and periodic snapshots.
+
+### Available AIs
+- `example` — Balanced AI that mines and attacks (default)
+- `aggressive_miner` — Fast aggression with rocket rallying and bullet deflection
+- `do_nothing` — Minimal stub that does nothing
 
 ### Read the game log
 ```bash
@@ -74,11 +79,26 @@ impl PlayerAI for MyAI {
         }
 
         // Station: queue a rocket build
-        if state.my_station.resources >= 100.0
+        if state.my_station.resources >= 50.0
             && state.my_station.build_progress.is_none()
             && state.my_station.build_queue_length == 0
         {
             cmds.station.build = Some(UnitTypeView::Rocket);
+        }
+
+        // Station: deflect enemy bullets with tractor beams
+        for bullet in &state.bullets {
+            if cmds.station.beam_targets.len() >= 5 { break; }
+            if bullet.team == state.my_team { continue; }
+            let delta = state.shortest_delta(state.my_station.position, bullet.position);
+            let dist = (delta[0] * delta[0] + delta[1] * delta[1]).sqrt();
+            if dist > state.my_station.beam_radius { continue; }
+            let bv = bullet.velocity_vec2();
+            let perp = Vec2::new(-bv.y, bv.x).normalize_or_zero();
+            cmds.station.beam_targets.push(BeamCommand {
+                target: bullet.id,
+                force_direction: [perp.x, perp.y],
+            });
         }
 
         cmds
@@ -93,17 +113,15 @@ In `src/players/mod.rs`, add:
 pub mod my_ai;
 ```
 
-In `src/main.rs`, swap in your AI:
+In `src/main.rs`, add to the `create_ai` match:
 ```rust
-let mut red_ai = players::my_ai::MyAI::new();
-// or
-let mut blue_ai = players::my_ai::MyAI::new();
+"my_ai" => Box::new(players::my_ai::MyAI::new()),
 ```
 
 ### 3. Run and iterate
 ```bash
-cargo run -- --headless   # Fast run, check game_log.json
-cargo run                 # Watch it play visually
+cargo run -- --headless --red my_ai --blue example   # Fast run, check game_log.json
+cargo run -- --red my_ai --blue aggressive_miner     # Watch it play visually
 ```
 
 ## API Reference
@@ -113,8 +131,8 @@ cargo run                 # Watch it play visually
 ```rust
 state.tick           // Current tick number (u64, 60 per second)
 state.my_team        // Team::Red or Team::Blue
-state.world_width    // 10000.0
-state.world_height   // 10000.0
+state.world_width    // 20000.0
+state.world_height   // 20000.0
 
 state.my_station     // StationView
 state.my_rockets     // Vec<RocketView>
@@ -238,7 +256,7 @@ game/
   HANDOFF.md               # This file
   game_log.json            # Output from last game run
   src/
-    main.rs                # Entry point, app setup
+    main.rs                # Entry point, app setup, AI selection
     config.rs              # GameConfig struct (mirrors config.toml)
     api/                   # Player-facing interface
       mod.rs               # Re-exports everything
@@ -247,7 +265,8 @@ game/
       player_trait.rs      # PlayerAI trait, GameResult
     players/               # AI implementations (EDIT THESE)
       mod.rs
-      example_ai.rs        # Competitive reference AI
+      example_ai.rs        # Balanced reference AI (mines + attacks)
+      aggressive_miner.rs  # Aggressive AI (rallies rockets, deflects bullets)
       do_nothing.rs        # Minimal stub
     engine/                # Game engine (DO NOT EDIT for fair play)
       physics/             # Newtonian physics, collisions
@@ -271,7 +290,7 @@ game/
     "reason": "Blue station destroyed",
     "ticks_played": 8274,
     "game_time_secs": 137.9,
-    "red_station_health": 500.0,
+    "red_station_health": 1000.0,
     "blue_station_health": 0.0
   },
   "summary": {
@@ -289,9 +308,9 @@ game/
   "snapshots": [
     {
       "tick": 0,
-      "red": {"station_health": 500.0, "minerals": 125.0, "rockets": 0, "tugs": 0},
-      "blue": {"station_health": 500.0, "minerals": 125.0, "rockets": 0, "tugs": 0},
-      "asteroids_remaining": 129,
+      "red": {"station_health": 1000.0, "minerals": 162.5, "rockets": 0, "tugs": 0},
+      "blue": {"station_health": 1000.0, "minerals": 162.5, "rockets": 0, "tugs": 0},
+      "asteroids_remaining": 356,
       "bullets_in_flight": 0
     }
   ]
@@ -309,9 +328,13 @@ Snapshots are taken every 300 ticks (5 game seconds).
 5. **Tugs have omnidirectional thrust.** They don't need to face their movement direction.
 6. **Beam lock range is 112 units** for tugs. Get close to grab an asteroid.
 7. **Station auto-gathers** tier 1-2 asteroids within 320 units. Just get them close enough.
-8. **Build early.** Starting minerals (200) can buy 2 tugs (150) with change left over.
+8. **Build early.** Starting minerals (200) can buy 2 tugs (75) and 1 rocket (50) immediately.
 9. **Mine large asteroids** by shooting them to fracture into gatherable sizes.
-10. **The station is immobile.** It can't dodge. Rockets at standoff range shooting consistently will kill it.
+10. **The station is immobile.** It can't dodge. Concentrated fire from multiple rockets will overwhelm beam defenses.
+11. **Deflect bullets** using station tractor beams — push them perpendicular to their velocity for maximum deflection.
+12. **Lead your targets** — aim where the target will be when the bullet arrives, not where it is now.
+13. **Avoid asteroids** — rockets take collision damage proportional to impact speed.
+14. **Rally rockets** — attacking in waves of 3+ is much more effective than sending them one at a time.
 
 ## Tech Details
 
@@ -320,3 +343,5 @@ Snapshots are taken every 300 ticks (5 game seconds).
 - **Entity IDs**: `EntityId(u64)` — stable within a tick, may be recycled across ticks after entity death
 - **Config**: All constants in `config.toml` / `GameConfig`. Available to AIs via `init()`.
 - **No network**: Both AIs run in the same process. `&mut self` on the trait gives persistent state.
+- **Headless mode**: Runs at ~1000x speed for fast iteration. Use `--headless` flag.
+- **AI selection**: Use `--red <name> --blue <name>` flags. Default is `example` for both.

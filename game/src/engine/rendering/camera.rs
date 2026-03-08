@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::input::mouse::MouseWheel;
+use crate::config::GameConfig;
 
 #[derive(Component)]
 pub struct GameCamera;
@@ -47,17 +48,21 @@ pub fn camera_follow(
     cam_transform.translation.y += delta.y;
 }
 
-/// Zoom in/out with mouse wheel.
+/// Zoom in/out with mouse wheel. Max zoom adapts to world size.
 pub fn camera_zoom(
     mut scroll_events: MessageReader<MouseWheel>,
     mut camera: Query<&mut Projection, With<GameCamera>>,
+    config: Res<GameConfig>,
 ) {
     let Ok(mut projection) = camera.single_mut() else { return };
     let Projection::Orthographic(ref mut ortho) = *projection else { return };
 
+    // Max zoom out: enough to see the entire world height in a 720p window
+    let max_scale = config.world.height / 720.0;
+
     for event in scroll_events.read() {
-        let zoom_speed = 0.01;
+        let zoom_speed = 0.015;
         ortho.scale *= 1.0 - event.y * zoom_speed;
-        ortho.scale = ortho.scale.clamp(0.2, 20.0);
+        ortho.scale = ortho.scale.clamp(0.2, max_scale);
     }
 }
