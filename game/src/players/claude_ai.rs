@@ -1,7 +1,8 @@
-//! ClaudeAI v9 — smarter beam defense, red concentrated rush.
+//! ClaudeAI v10 — spread attack lanes, tug defense, unified strategy.
 //!
-//! v9 changes over v8: station beams repel ALL enemy rockets in range when station
-//! health drops below 80% (not just approaching ones). Red side unchanged from v8.
+//! v10 changes: spread attack across 5 lanes (like Codex), increased standoff to 380,
+//! tug defense (one tug grabs bullets/enemy rockets near station), 3 tugs on both
+//! sides, removed red/blue asymmetry for consistent play.
 
 use crate::api::*;
 use crate::config::GameConfig;
@@ -60,11 +61,10 @@ impl PlayerAI for ClaudeAI {
             state.asteroids.iter().filter(|a| a.tier <= 2).collect();
 
         let early_game = state.tick < 600;
-        let is_red = state.my_team == Team::Red;
 
-        // Team-aware defense radius: tight when red (attack focus), moderate when blue
-        let defense_detect_radius = if is_red { 1800.0 } else { 2500.0 };
-        let defense_divert_radius = if is_red { 2000.0 } else { 3000.0 };
+        // Unified defense radius
+        let defense_detect_radius = 2500.0;
+        let defense_divert_radius = 3000.0;
         let station_under_pressure = state.my_station.health < state.my_station.max_health * 0.8;
 
         // Defend against rockets approaching our station
@@ -115,18 +115,13 @@ impl PlayerAI for ClaudeAI {
             0
         };
 
-        // Hunt enemy tugs — fewer when red to maximize attack pressure
+        // Hunt enemy tugs
         let enemy_tug_count = state.enemy_tugs.len();
         let tug_hunter_needed = if enemy_tug_count == 0 {
             0
-        } else if is_red {
-            // Red: at most 1 tug hunter to keep attack force concentrated
-            if num_rockets >= 5 { 1 } else { 0 }
         } else if num_rockets >= 6 {
-            enemy_tug_count.min(3)
-        } else if num_rockets >= 4 {
             enemy_tug_count.min(2)
-        } else if num_rockets >= 2 {
+        } else if num_rockets >= 4 {
             1
         } else {
             0
@@ -172,10 +167,9 @@ impl PlayerAI for ClaudeAI {
                 continue;
             }
 
-            // Retreat to station for repair if damaged (team-aware threshold)
+            // Retreat to station for repair if damaged
             let hp_ratio = rocket.health / rocket.max_health;
-            let retreat_threshold = if is_red { 0.3 } else { 0.5 };
-            if hp_ratio < retreat_threshold && dist_to_station > beam_radius + 50.0 {
+            if hp_ratio < 0.4 && dist_to_station > beam_radius + 50.0 {
                 let to_station = dv2(state, rocket.position, state.my_station.position);
                 let target = Vec2::new(rocket.position[0], rocket.position[1])
                     + to_station.normalize_or_zero() * (dist_to_station - beam_radius * 0.7);
@@ -332,14 +326,22 @@ impl PlayerAI for ClaudeAI {
                     if dist_to_focus < 2500.0 {
                         fly_and_shoot(state, rocket, focus.position, focus.velocity, 170.0)
                     } else {
-                        fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 250.0)
+                        fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 380.0)
                     }
                 } else {
-                    fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 250.0)
+                    fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 380.0)
                 }
             } else {
-                // Concentrated rush — all rockets converge on enemy station
-                fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 300.0)
+                // Spread attack lanes — approach from different angles
+                let base_delta = dv2(state, rocket.position, state.enemy_station.position);
+                let perp = Vec2::new(-base_delta.y, base_delta.x).normalize_or_zero();
+                let lane = (rocket.id.0 % 5) as f32 - 2.0;
+                let offset = perp * lane * 140.0;
+                let target = [
+                    state.enemy_station.position[0] + offset.x,
+                    state.enemy_station.position[1] + offset.y,
+                ];
+                fly_and_shoot(state, rocket, target, [0.0, 0.0], 380.0)
             };
             cmds.rockets.insert(rocket.id, cmd);
         }
@@ -361,6 +363,29 @@ impl PlayerAI for ClaudeAI {
         for tid in self.tug_targets.values() {
             claimed.push(*tid);
         }
+
+        // Assign one tug to defense if we have 3+ tugs and station is threatened
+        let incoming_station_bullets = state.bullets.iter()
+            .filter(|b| {
+                b.team != state.my_team
+                    && state.distance(b.position, state.my_station.position) < beam_radius + 200.0
+            })
+            .count();
+        let need_tug_defender = num_tugs >= 3
+            && (station_under_pressure || !station_threats.is_empty() || incoming_station_bullets > 0);
+        // Pick the tug closest to our station as defender
+        let defender_tug_id = if need_tug_defender {
+            state.my_tugs.iter()
+                .filter(|t| t.carrying.is_none())
+                .min_by(|a, b| {
+                    state.distance(a.position, state.my_station.position)
+                        .partial_cmp(&state.distance(b.position, state.my_station.position))
+                        .unwrap()
+                })
+                .map(|t| t.id)
+        } else {
+            None
+        };
 
         for tug in &state.my_tugs {
             let tug_vel = tug.velocity_vec2();
@@ -412,6 +437,68 @@ impl PlayerAI for ClaudeAI {
                     let desired_vel = flee_dir * 120.0;
                     let dv = desired_vel - tug_vel;
                     cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
+                }
+
+                // Tug defense: grab bullets/enemy rockets near station
+                if defender_tug_id == Some(tug.id) {
+                    // Try to grab incoming bullet near station
+                    let grab_bullet = state.bullets.iter()
+                        .filter(|b| {
+                            b.team != state.my_team
+                                && state.distance(tug.position, b.position) < 170.0
+                                && state.distance(b.position, state.my_station.position) < beam_radius + 200.0
+                        })
+                        .min_by(|a, b| {
+                            state.distance(a.position, state.my_station.position)
+                                .partial_cmp(&state.distance(b.position, state.my_station.position))
+                                .unwrap()
+                        });
+                    if let Some(bullet) = grab_bullet {
+                        let to_bullet = dv2(state, tug.position, bullet.position);
+                        let desired_vel = to_bullet.normalize_or_zero() * 120.0 + bullet.velocity_vec2() * 0.15;
+                        let dv = desired_vel - tug_vel;
+                        cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                        cmd.beam_target = Some(bullet.id);
+                        cmds.tugs.insert(tug.id, cmd);
+                        continue;
+                    }
+                    // Try to grab enemy rocket near station
+                    let grab_rocket = state.enemy_rockets.iter()
+                        .filter(|r| {
+                            state.distance(tug.position, r.position) < 200.0
+                                && state.distance(r.position, state.my_station.position) < 1600.0
+                        })
+                        .min_by(|a, b| {
+                            state.distance(a.position, state.my_station.position)
+                                .partial_cmp(&state.distance(b.position, state.my_station.position))
+                                .unwrap()
+                        });
+                    if let Some(enemy) = grab_rocket {
+                        let to_enemy = dv2(state, tug.position, enemy.position);
+                        let desired_vel = to_enemy.normalize_or_zero() * 110.0;
+                        let dv = desired_vel - tug_vel;
+                        cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                        if to_enemy.length() < 170.0 {
+                            cmd.beam_target = Some(enemy.id);
+                        }
+                        cmds.tugs.insert(tug.id, cmd);
+                        continue;
+                    }
+                    // No targets — orbit near station
+                    let to_station = dv2(state, tug.position, state.my_station.position);
+                    let station_dist = to_station.length();
+                    if station_dist > beam_radius * 0.8 {
+                        let desired_vel = to_station.normalize_or_zero() * 80.0;
+                        let dv = desired_vel - tug_vel;
+                        cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                    } else {
+                        let perp = Vec2::new(-to_station.y, to_station.x).normalize_or_zero();
+                        let desired_vel = perp * 60.0;
+                        let dv = desired_vel - tug_vel;
+                        cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                    }
                     cmds.tugs.insert(tug.id, cmd);
                     continue;
                 }
@@ -614,11 +701,10 @@ impl PlayerAI for ClaudeAI {
         // Build order: 3 tugs early for strong economy, then pure rockets
         let minerals = state.my_station.resources;
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
-            let max_tugs_early = if is_red { 2 } else { 3 };
             let want_tug = if num_tugs == 0 {
                 true
             } else if self.total_builds < 6 {
-                num_tugs < max_tugs_early
+                num_tugs < 3
             } else {
                 num_tugs < 2 // Always maintain at least 2 tugs for economy
             };
