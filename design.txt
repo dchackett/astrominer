@@ -1,0 +1,83 @@
+ASTROMINER
+
+A programming game based on an RTS-like iteration of the classic arcade game Asteroids. There are two teams, Red and Blue. Their objective: destroy the other team's space station! Players play by writing the AI that controls all of their units.
+
+The game mechanics are based around Asteroids-style Newtonian mechanics. We want to enforce a coherent set of rules to allow for emergent gameplay. All objects have masses, velocities, etc. Motion is achieved by applying thrust/force!
+
+We have a preliminary implementation of an RTS-style version of the gameplay logic, but we'll want to rebuild around the idea of making this a programming game. Here are the requirements:
+- First-class support for graphical execution to watch gameplay, but maybe we want support for headless execution too
+- Ability to drop in code for the unit/army AI so players can iterate easily
+- Factorization between core game logic (immutable by players) and unit/army AI
+- Whatever logging and telemetry are necessary for coding agents to test different approaches; this can be prints they write into their AI code, but also we probably want some agent-friendly way of watching games / inspecting game states / etc.
+- Some way of running experiments/scenarios short of full gameplay?
+
+RELEVANT CONCEPTS:
+
+UNITS: stations, rockets, tugs
+OTHER OBJECTS: bullets, asteroids
+ALSO: tractor beams, repair beams
+
+GAMEPLAY
+- No fog of war
+- Red team and blue team (unit wireframe colors)
+- Toroidal boundary conditions
+
+GRAPHICAL INTERFACE
+- Movable camera
+- No interaction with game environment, just for viewing
+
+COLLISIONS AND DAMAGE
+- All objects are wireframes. Collisions are per the wireframe.
+- Bullets cause damage when they hit things
+- Collisions between any pair of objects cause damage proportional to the exchange of momentum
+- Soft collisions don't cause damage
+- Collision avoidance is the responsibility of per-player AI code (as is all unit behavior)
+
+ASTEROIDS
+- Come in many different sizes/tiers
+- When damaged sufficiently, break into many asteroids of the next smaller tier
+- Smallest asteroids can be returned to the station as resources
+- Gameplay starts with many asteroids seeded around the map
+
+TRACTOR BEAMS
+- Tugs and stations have tractor beams
+- Tractor beams can apply force in arbitrary directions on a single object
+- Limited range
+- Used by tugs and stations for resource gathering
+- Can be used to deflect bullets, throw things, etc
+- Have some cooldown time so they can't deflect arbitrarily many bullets easily
+
+STATION
+- Home base, produces tugs and rockets
+- Huge, very massive, but can be moved by tugs; otherwise immobile (no thrusters)
+- Has up to 5 tractor beams
+- Has a limited supply of "tractor beam force" which it can distribute amongst its tractor beams however it wants
+- When smallest tier of asteroid contacts the station, the station eats it and turns it into resources
+- Uses tractor beams to pull in nearby small rocks (handled by per-player AI)
+- Uses tractor beams to push away big rocks, bullets, etc (handled by per-player AI)
+- Has a "repair beam" of limited range that can repair friendly units for some resource cost
+- Can slowly repair itself for some resource cost
+
+BULLETS
+- Small mass, explode when hitting something to cause damage rather than causing damage via collision dynamics
+- Can be deflected by tractor beams
+- Limited range (die after existing for a while)
+
+ROCKETS
+- The A-frame rocket from Asteroids
+- Rotates
+- Thruster to accelerate in the direction its facing
+- Shoots bullets forwards
+- Bullets are fired with relative velocity vs the rocket 
+- In resource gathering, it must blow up large asteroids so that tugs can gather small asteroids (per-player AI must do this)
+- Combat unit (shoots bullets)
+
+TUGS
+- Squares
+- Omnidirectional thrusters
+- Tractor beam to move things around
+- Gathers resources by dragging small rocks back to base (per-player AI must do this)
+- Lots of potential creative applications of tractor beam, e.g., point defense, throwing rocks (per-player AI)
+
+
+

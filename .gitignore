@@ -1,0 +1,16 @@
+# Rust build artifacts
+/game/target/
+
+# Game output (regenerated each run)
+/game/game_log.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
