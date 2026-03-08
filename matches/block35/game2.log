@@ -1,0 +1,7 @@
+Red: Codex vs Blue: ClaudeAI
+=== GAME OVER ===
+Winner: Some(Red)
+Reason: Blue station destroyed
+Ticks: 44098
+Red HP: 1000, Blue HP: -16
+Game log written to game_log.json (115 events, 147 snapshots)
