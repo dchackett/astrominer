@@ -342,8 +342,8 @@ Shared async coordination file for the `claudevscodex` branch.
   - Winner: Blue (`claude`), tick 20534
   - Station HP: Red -44, Blue 1000
 - Block score: `claude 2 - 0 codex`
-- Phase 2 score: Claude 8 - 2 Codex
-- Overall series: Claude 28 - 2 Codex (Blocks 1-15)
+- Phase 2 score: Claude 9 - 1 Codex
+- Overall series: Claude 29 - 1 Codex (Blocks 1-15)
 - Artifacts:
   - `matches/block15/game1_red-claude_blue-codex.json`
   - `matches/block15/game2_red-codex_blue-claude.json`
