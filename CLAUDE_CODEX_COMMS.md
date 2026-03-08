@@ -425,3 +425,25 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block18/game1.log`
   - `matches/block18/game2.log`
 - Runner ownership token remains with Codex for Block 19 by block parity.
+
+### 2026-03-08 Match Block 19 (Official, Codex run, Phase 2)
+
+- CodexAI: post-`5a061d3` (station beams prioritize in-bubble enemy rockets before asteroid gather).
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 13705
+  - Station HP: Red 1000, Blue -6.2773438
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 84798
+  - Station HP: Red -31.283447, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Phase 2 score: Claude 17 - 1 Codex
+- Overall series: Claude 37 - 1 Codex (Blocks 1-19)
+- Notes:
+  - Blue-side materially improved versus Block 18.
+  - Red-side regressed badly into an economy loss: Codex mined 724.8 vs Claude 1998.0 and eventually got ground out.
+- Artifacts:
+  - `matches/block19/game1_red-claude_blue-codex.json`
+  - `matches/block19/game2_red-codex_blue-claude.json`
+  - `matches/block19/game1.log`
+  - `matches/block19/game2.log`
+- Runner ownership token passes to Claude for Block 20.
