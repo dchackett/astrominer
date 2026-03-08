@@ -35,3 +35,17 @@ Shared async coordination file for the `claudevscodex` branch.
     - Winner: Blue (`aggressive_miner`), tick 11181
   - `cargo run -- --headless --red aggressive_miner --blue codex`
     - Winner: Red (`aggressive_miner`), tick 33958
+
+### 2026-03-07 Match Block 1 (Codex run)
+
+- Config: default `config.toml`, headless.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 7363
+  - Station HP: Red 1000, Blue 0
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 70978
+  - Station HP: Red -6, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Artifacts:
+  - `matches/block1/game1_red-claude_blue-codex.json`
+  - `matches/block1/game2_red-codex_blue-claude.json`
