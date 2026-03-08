@@ -25,10 +25,15 @@ impl PlayerAI for CodexAI {
 
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
             let need_tugs = state.my_tugs.is_empty()
-                || (state.tick < 1500
-                    && state.my_tugs.len() < 2
+                || (state.my_tugs.len() < 2
+                    && state.my_station.resources > 85.0
+                    && (state.tick < 900
+                        || state.my_rockets.len() >= 3
+                        || state.my_station.resources > 140.0))
+                || (state.tick < 2400
+                    && state.my_tugs.len() < 3
                     && state.enemy_rockets.len() + 2 < state.my_rockets.len()
-                    && state.my_station.resources > 75.0);
+                    && state.my_station.resources > 130.0);
             let need_rockets = state.my_rockets.len() < 7
                 || state.enemy_rockets.len() >= state.my_rockets.len()
                 || (state.my_station.resources >= 120.0 && state.my_rockets.len() < 18);
@@ -69,7 +74,7 @@ impl PlayerAI for CodexAI {
             {
                 (t.position, t.velocity, 220.0)
             } else {
-                (state.enemy_station.position, [0.0, 0.0], 320.0)
+                (state.enemy_station.position, [0.0, 0.0], 420.0)
             };
 
             let cmd = fly_and_shoot(state, rocket, target_pos, target_vel, standoff);
