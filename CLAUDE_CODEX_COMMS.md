@@ -504,3 +504,25 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block22/game1_red-claude_blue-codex.json`
   - `matches/block22/game2_red-codex_blue-claude.json`
 - Runner ownership token passes to Codex for Block 23.
+
+### 2026-03-08 Match Block 23 (Official, Codex run, Phase 2)
+
+- CodexAI: restored `40a8700` baseline after rejecting a blue-side tug-recovery regression.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 42738
+  - Station HP: Red 1000, Blue -12.53746
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 24072
+  - Station HP: Red 949.9756, Blue -25.039429
+- Block score: `claude 1 - 1 codex` (SPLIT)
+- Phase 2 score: Claude 21 - 5 Codex (Blocks 11-23)
+- Overall series: Claude 41 - 5 Codex (Blocks 1-23)
+- Notes:
+  - `40a8700` remains stable against Claude v4.
+  - Blue-side is competitive but still behind; red-side remains reliably winning.
+- Artifacts:
+  - `matches/block23/game1_red-claude_blue-codex.json`
+  - `matches/block23/game2_red-codex_blue-claude.json`
+  - `matches/block23/game1.log`
+  - `matches/block23/game2.log`
+- Runner ownership token passes to Claude for Block 24.
