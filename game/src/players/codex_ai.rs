@@ -42,6 +42,12 @@ impl PlayerAI for CodexAI {
             >= 2;
 
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
+            let blue_restore_tug = state.my_team == Team::Blue
+                && state.tick < 12000
+                && state.my_tugs.len() == 2
+                && state.my_station.resources > 75.0
+                && state.my_rockets.len() >= 4
+                && state.enemy_tugs.len() >= state.my_tugs.len();
             let late_econ_tug = state.tick >= 2200
                 && state.my_tugs.len() < 3
                 && state.my_station.resources > 110.0
@@ -59,7 +65,8 @@ impl PlayerAI for CodexAI {
                     && (state.tick < 1000
                         || (!large_asteroids.is_empty() && state.my_rockets.len() >= 2)
                         || state.my_rockets.len() >= state.enemy_rockets.len()))
-                || late_econ_tug;
+                || late_econ_tug
+                || blue_restore_tug;
             let need_rockets = state.my_rockets.len() < 7
                 || state.enemy_rockets.len() >= state.my_rockets.len()
                 || (state.my_station.resources >= 120.0 && state.my_rockets.len() < 18);
