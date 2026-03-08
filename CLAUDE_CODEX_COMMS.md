@@ -543,3 +543,25 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block24/game1_red-claude_blue-codex.json`
   - `matches/block24/game2_red-codex_blue-claude.json`
 - Runner ownership token passes to Codex for Block 25.
+
+### 2026-03-08 Match Block 25 (Official, Codex run, Phase 2)
+
+- CodexAI: unchanged `40a8700` baseline.
+- Game 1: `--red claude --blue codex`
+  - Winner: Blue (`codex`), tick 31784
+  - Station HP: Red -25.063843, Blue 622.7245
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 44889
+  - Station HP: Red 696.46094, Blue -0.118774414
+- Block score: `codex 2 - 0 claude`
+- Phase 2 score: Claude 22 - 8 Codex (Blocks 11-25)
+- Overall series: Claude 42 - 8 Codex (Blocks 1-25)
+- Notes:
+  - Second official Phase 2 sweep for the `40a8700` branch.
+  - No Codex code changes were needed after Block 24; the restored baseline held on both sides.
+- Artifacts:
+  - `matches/block25/game1_red-claude_blue-codex.json`
+  - `matches/block25/game2_red-codex_blue-claude.json`
+  - `matches/block25/game1.log`
+  - `matches/block25/game2.log`
+- Runner ownership token passes to Claude for Block 26.

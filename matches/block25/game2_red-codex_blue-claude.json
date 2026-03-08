@@ -1,0 +1,3232 @@
+{
+  "result": {
+    "winner": "Red",
+    "reason": "Blue station destroyed",
+    "ticks_played": 44889,
+    "game_time_secs": 748.15,
+    "red_station_health": 696.46094,
+    "blue_station_health": -0.118774414
+  },
+  "summary": {
+    "red_units_built": 39,
+    "blue_units_built": 22,
+    "red_units_lost": 29,
+    "blue_units_lost": 21,
+    "red_minerals_mined": 1273.6003,
+    "blue_minerals_mined": 1548.2671
+  },
+  "events": [
+    {
+      "tick": 241,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Tug"
+    },
+    {
+      "tick": 241,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Tug"
+    },
+    {
+      "tick": 483,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Tug"
+    },
+    {
+      "tick": 483,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Tug"
+    },
+    {
+      "tick": 725,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Tug"
+    },
+    {
+      "tick": 725,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Tug"
+    },
+    {
+      "tick": 1026,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 1026,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 1938,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 1938,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 2239,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 2756,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 2886,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 3547,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 3677,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 3978,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 4096,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 4279,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 4580,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 4724,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 5712,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 5943,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 6051,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 6444,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 6796,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 6846,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 7025,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 7582,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 8391,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 8564,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 8696,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 8697,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 8811,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 8969,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 9395,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 9425,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 9580,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Tug"
+    },
+    {
+      "tick": 9624,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 9696,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 9925,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 10366,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 10677,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 11321,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 11559,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 12009,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 12289,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 12759,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 13018,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 13027,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 13177,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Tug"
+    },
+    {
+      "tick": 13231,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 13297,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 13682,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 15198,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Tug"
+    },
+    {
+      "tick": 15657,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 15782,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 15948,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 16128,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 16232,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 16525,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 16826,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 16879,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 16926,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 17579,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 18460,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 19264,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 20392,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 22115,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 22503,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 23151,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 23380,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 23684,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Tug"
+    },
+    {
+      "tick": 24236,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 24677,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 25470,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 27311,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 27645,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 29010,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 29033,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 29436,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 29729,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 29766,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 30527,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 30750,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 31263,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 31314,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 31673,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 32627,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 33109,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 33809,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 33810,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 35367,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 35992,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 36901,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 36986,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 37840,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 38976,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 39914,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 39949,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 40360,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 40533,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 40935,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 41553,
+      "event": "unit_destroyed",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 42627,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 43421,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 43663,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Tug"
+    },
+    {
+      "tick": 43699,
+      "event": "unit_spawned",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 43964,
+      "event": "unit_spawned",
+      "team": "Red",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 44354,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Rocket"
+    },
+    {
+      "tick": 44556,
+      "event": "unit_destroyed",
+      "team": "Blue",
+      "detail": "Tug"
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 0,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 162.5,
+        "rockets": 0,
+        "tugs": 0
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 162.5,
+        "rockets": 0,
+        "tugs": 0
+      },
+      "asteroids_remaining": 356,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 300,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 125.0,
+        "rockets": 0,
+        "tugs": 1
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 125.0,
+        "rockets": 0,
+        "tugs": 1
+      },
+      "asteroids_remaining": 356,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 600,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 356,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 900,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 0,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 0,
+        "tugs": 3
+      },
+      "asteroids_remaining": 356,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 1200,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 1,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 1,
+        "tugs": 3
+      },
+      "asteroids_remaining": 356,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 1500,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 1,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 1,
+        "tugs": 3
+      },
+      "asteroids_remaining": 356,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 1800,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 1,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 1,
+        "tugs": 3
+      },
+      "asteroids_remaining": 353,
+      "bullets_in_flight": 4
+    },
+    {
+      "tick": 2100,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 2,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 2,
+        "tugs": 3
+      },
+      "asteroids_remaining": 352,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 2400,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 2,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 3,
+        "tugs": 3
+      },
+      "asteroids_remaining": 352,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 2700,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 2,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 3,
+        "tugs": 3
+      },
+      "asteroids_remaining": 351,
+      "bullets_in_flight": 3
+    },
+    {
+      "tick": 3000,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 3,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 351,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 3300,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 3,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 350,
+      "bullets_in_flight": 5
+    },
+    {
+      "tick": 3600,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 3,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 349,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 3900,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 350,
+      "bullets_in_flight": 3
+    },
+    {
+      "tick": 4200,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 349,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 4500,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 6,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 347,
+      "bullets_in_flight": 5
+    },
+    {
+      "tick": 4800,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 345,
+      "bullets_in_flight": 5
+    },
+    {
+      "tick": 5100,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 62.5,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 344,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 5400,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 62.5,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 344,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 5700,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 342,
+      "bullets_in_flight": 4
+    },
+    {
+      "tick": 6000,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 341,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 6300,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 340,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 6600,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 6,
+        "tugs": 3
+      },
+      "asteroids_remaining": 338,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 6900,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 6,
+        "tugs": 3
+      },
+      "asteroids_remaining": 338,
+      "bullets_in_flight": 8
+    },
+    {
+      "tick": 7200,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 338,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 7500,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 337,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 7800,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 337,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 8100,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 3
+      },
+      "asteroids_remaining": 336,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 8400,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 6,
+        "tugs": 3
+      },
+      "asteroids_remaining": 336,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 8700,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 3,
+        "tugs": 3
+      },
+      "asteroids_remaining": 335,
+      "bullets_in_flight": 10
+    },
+    {
+      "tick": 9000,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 335,
+      "bullets_in_flight": 11
+    },
+    {
+      "tick": 9300,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 162.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 4,
+        "tugs": 3
+      },
+      "asteroids_remaining": 332,
+      "bullets_in_flight": 14
+    },
+    {
+      "tick": 9600,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 112.5,
+        "rockets": 8,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 62.5,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "asteroids_remaining": 330,
+      "bullets_in_flight": 14
+    },
+    {
+      "tick": 9900,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 112.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "asteroids_remaining": 330,
+      "bullets_in_flight": 19
+    },
+    {
+      "tick": 10200,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 112.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "asteroids_remaining": 330,
+      "bullets_in_flight": 13
+    },
+    {
+      "tick": 10500,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 9,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "asteroids_remaining": 328,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 10800,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "asteroids_remaining": 328,
+      "bullets_in_flight": 27
+    },
+    {
+      "tick": 11100,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "asteroids_remaining": 327,
+      "bullets_in_flight": 11
+    },
+    {
+      "tick": 11400,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "asteroids_remaining": 327,
+      "bullets_in_flight": 13
+    },
+    {
+      "tick": 11700,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 37.5,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "asteroids_remaining": 327,
+      "bullets_in_flight": 1
+    },
+    {
+      "tick": 12000,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "asteroids_remaining": 326,
+      "bullets_in_flight": 13
+    },
+    {
+      "tick": 12300,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "asteroids_remaining": 326,
+      "bullets_in_flight": 9
+    },
+    {
+      "tick": 12600,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "asteroids_remaining": 325,
+      "bullets_in_flight": 10
+    },
+    {
+      "tick": 12900,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 12,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 1000.0,
+        "minerals": 12.5,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "asteroids_remaining": 324,
+      "bullets_in_flight": 15
+    },
+    {
+      "tick": 13200,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 704.199,
+        "minerals": 4.100008,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 323,
+      "bullets_in_flight": 20
+    },
+    {
+      "tick": 13500,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 11,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 706.2318,
+        "minerals": 0.033342525,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 323,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 13800,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 710.1642,
+        "minerals": 17.16657,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 322,
+      "bullets_in_flight": 14
+    },
+    {
+      "tick": 14100,
+      "red": {
+        "station_health": 1000.0,
+        "minerals": 87.5,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 718.72876,
+        "minerals": 0.03323476,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 322,
+      "bullets_in_flight": 20
+    },
+    {
+      "tick": 14400,
+      "red": {
+        "station_health": 906.865,
+        "minerals": 73.76688,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 721.1948,
+        "minerals": 20.099836,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 321,
+      "bullets_in_flight": 12
+    },
+    {
+      "tick": 14700,
+      "red": {
+        "station_health": 916.86255,
+        "minerals": 78.76718,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 731.1924,
+        "minerals": 0.09979462,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 320,
+      "bullets_in_flight": 10
+    },
+    {
+      "tick": 15000,
+      "red": {
+        "station_health": 926.8601,
+        "minerals": 58.767487,
+        "rockets": 10,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 731.2257,
+        "minerals": 0.03312795,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 320,
+      "bullets_in_flight": 27
+    },
+    {
+      "tick": 15300,
+      "red": {
+        "station_health": 936.85767,
+        "minerals": 88.76779,
+        "rockets": 10,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 731.2257,
+        "minerals": 0.03312795,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 319,
+      "bullets_in_flight": 13
+    },
+    {
+      "tick": 15600,
+      "red": {
+        "station_health": 596.8552,
+        "minerals": 68.7681,
+        "rockets": 10,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 731.2257,
+        "minerals": 0.03312795,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 319,
+      "bullets_in_flight": 26
+    },
+    {
+      "tick": 15900,
+      "red": {
+        "station_health": 456.85278,
+        "minerals": 48.768402,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 737.75745,
+        "minerals": 11.966346,
+        "rockets": 5,
+        "tugs": 1
+      },
+      "asteroids_remaining": 318,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 16200,
+      "red": {
+        "station_health": 466.85034,
+        "minerals": 53.768707,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 743.72266,
+        "minerals": 0.033021137,
+        "rockets": 3,
+        "tugs": 1
+      },
+      "asteroids_remaining": 317,
+      "bullets_in_flight": 8
+    },
+    {
+      "tick": 16500,
+      "red": {
+        "station_health": 476.8479,
+        "minerals": 33.769012,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 743.72266,
+        "minerals": 0.033021137,
+        "rockets": 2,
+        "tugs": 1
+      },
+      "asteroids_remaining": 317,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 16800,
+      "red": {
+        "station_health": 486.84546,
+        "minerals": 13.768826,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 743.72266,
+        "minerals": 0.033021137,
+        "rockets": 2,
+        "tugs": 1
+      },
+      "asteroids_remaining": 316,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 17100,
+      "red": {
+        "station_health": 493.71045,
+        "minerals": 0.035502598,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 743.72266,
+        "minerals": 0.033021137,
+        "rockets": 2,
+        "tugs": 1
+      },
+      "asteroids_remaining": 316,
+      "bullets_in_flight": 9
+    },
+    {
+      "tick": 17400,
+      "red": {
+        "station_health": 493.71045,
+        "minerals": 0.035502598,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 743.72266,
+        "minerals": 0.033021137,
+        "rockets": 2,
+        "tugs": 1
+      },
+      "asteroids_remaining": 316,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 17700,
+      "red": {
+        "station_health": 493.71045,
+        "minerals": 0.035502598,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 743.98926,
+        "minerals": 24.499681,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 315,
+      "bullets_in_flight": 5
+    },
+    {
+      "tick": 18000,
+      "red": {
+        "station_health": 498.47595,
+        "minerals": 15.50205,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 753.9868,
+        "minerals": 4.4995794,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 314,
+      "bullets_in_flight": 1
+    },
+    {
+      "tick": 18300,
+      "red": {
+        "station_health": 506.2074,
+        "minerals": 0.035395786,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 756.2196,
+        "minerals": 0.032914326,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 314,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 18600,
+      "red": {
+        "station_health": 506.2074,
+        "minerals": 0.035395786,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 756.2196,
+        "minerals": 0.032914326,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 314,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 18900,
+      "red": {
+        "station_health": 513.1057,
+        "minerals": 11.235281,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 756.2196,
+        "minerals": 0.032914326,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 19200,
+      "red": {
+        "station_health": 522.13684,
+        "minerals": 18.168531,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 756.2196,
+        "minerals": 0.032914326,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 15
+    },
+    {
+      "tick": 19500,
+      "red": {
+        "station_health": 531.2013,
+        "minerals": 0.035182163,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 756.2196,
+        "minerals": 0.032914326,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 20
+    },
+    {
+      "tick": 19800,
+      "red": {
+        "station_health": 531.2013,
+        "minerals": 0.035182163,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 756.2196,
+        "minerals": 0.032914326,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 9
+    },
+    {
+      "tick": 20100,
+      "red": {
+        "station_health": 531.2013,
+        "minerals": 0.035182953,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 716.1505,
+        "minerals": 5.1661386,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 310,
+      "bullets_in_flight": 15
+    },
+    {
+      "tick": 20400,
+      "red": {
+        "station_health": 531.2013,
+        "minerals": 0.035182953,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 20700,
+      "red": {
+        "station_health": 531.2013,
+        "minerals": 0.035182953,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 20
+    },
+    {
+      "tick": 21000,
+      "red": {
+        "station_health": 532.2677,
+        "minerals": 22.901821,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 16
+    },
+    {
+      "tick": 21300,
+      "red": {
+        "station_health": 542.26526,
+        "minerals": 2.901742,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 10
+    },
+    {
+      "tick": 21600,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507535,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 21900,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 311,
+      "bullets_in_flight": 11
+    },
+    {
+      "tick": 22200,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 311,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 22500,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 311,
+      "bullets_in_flight": 19
+    },
+    {
+      "tick": 22800,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 311,
+      "bullets_in_flight": 17
+    },
+    {
+      "tick": 23100,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 1,
+        "tugs": 1
+      },
+      "asteroids_remaining": 310,
+      "bullets_in_flight": 13
+    },
+    {
+      "tick": 23400,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 718.71655,
+        "minerals": 0.032807514,
+        "rockets": 0,
+        "tugs": 1
+      },
+      "asteroids_remaining": 310,
+      "bullets_in_flight": 3
+    },
+    {
+      "tick": 23700,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 724.94836,
+        "minerals": 0.06614988,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 309,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 24000,
+      "red": {
+        "station_health": 543.69824,
+        "minerals": 0.03507614,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 724.94836,
+        "minerals": 0.06614988,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 309,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 24300,
+      "red": {
+        "station_health": 549.39685,
+        "minerals": 13.634958,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 724.94836,
+        "minerals": 0.06614988,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 308,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 24600,
+      "red": {
+        "station_health": 556.1952,
+        "minerals": 0.03496854,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 724.94836,
+        "minerals": 0.06614988,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 308,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 24900,
+      "red": {
+        "station_health": 556.1952,
+        "minerals": 0.03496854,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 724.94836,
+        "minerals": 0.06614988,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 308,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 25200,
+      "red": {
+        "station_health": 556.1952,
+        "minerals": 0.03496933,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 730.9136,
+        "minerals": 13.1327,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 306,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 25500,
+      "red": {
+        "station_health": 560.9607,
+        "minerals": 15.501516,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 737.4453,
+        "minerals": 0.06604307,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 305,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 25800,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486173,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 745.57666,
+        "minerals": 33.799625,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 304,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 26100,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486173,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 755.5742,
+        "minerals": 13.79944,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 26400,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486173,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 762.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 26700,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486173,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 562.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 27000,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486173,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 562.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 27300,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 562.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 306,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 27600,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 562.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 305,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 27900,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 562.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 305,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 28200,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 562.4392,
+        "minerals": 0.06611746,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 305,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 28500,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 565.1719,
+        "minerals": 44.599533,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 304,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 28800,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 575.16943,
+        "minerals": 24.599625,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 29100,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 585.167,
+        "minerals": 4.5995216,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 306,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 29400,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 587.4331,
+        "minerals": 0.06618898,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 305,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 29700,
+      "red": {
+        "station_health": 568.69214,
+        "minerals": 0.03486252,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 587.4331,
+        "minerals": 0.06618898,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 304,
+      "bullets_in_flight": 4
+    },
+    {
+      "tick": 30000,
+      "red": {
+        "station_health": 573.32434,
+        "minerals": 15.768076,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 587.4331,
+        "minerals": 0.06618898,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 30300,
+      "red": {
+        "station_health": 581.1891,
+        "minerals": 0.034754917,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 587.4331,
+        "minerals": 0.06618898,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 30600,
+      "red": {
+        "station_health": 583.8218,
+        "minerals": 19.768019,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 595.5311,
+        "minerals": 33.866436,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 4
+    },
+    {
+      "tick": 30900,
+      "red": {
+        "station_health": 593.68604,
+        "minerals": 0.034648106,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 605.5287,
+        "minerals": 13.866252,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 31200,
+      "red": {
+        "station_health": 593.68604,
+        "minerals": 0.034648106,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 612.427,
+        "minerals": 0.066264324,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 31500,
+      "red": {
+        "station_health": 598.05164,
+        "minerals": 16.301199,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 612.427,
+        "minerals": 0.066264324,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 12
+    },
+    {
+      "tick": 31800,
+      "red": {
+        "station_health": 606.183,
+        "minerals": 0.034541294,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 614.2599,
+        "minerals": 21.39955,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 309,
+      "bullets_in_flight": 1
+    },
+    {
+      "tick": 32100,
+      "red": {
+        "station_health": 610.9818,
+        "minerals": 15.4344225,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 624.25745,
+        "minerals": 1.3994911,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 311,
+      "bullets_in_flight": 16
+    },
+    {
+      "tick": 32400,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034434006,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 624.92395,
+        "minerals": 0.06615751,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 11
+    },
+    {
+      "tick": 32700,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034434006,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 624.92395,
+        "minerals": 0.06615751,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 315,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 33000,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034434006,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 624.92395,
+        "minerals": 0.06615751,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 316,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 33300,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034434006,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 633.92175,
+        "minerals": 32.066433,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 315,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 33600,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034435272,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 643.9193,
+        "minerals": 37.06638,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 33900,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034435272,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 653.9169,
+        "minerals": 17.066256,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 34200,
+      "red": {
+        "station_health": 618.67993,
+        "minerals": 0.034435272,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 662.4148,
+        "minerals": 0.06625479,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 34500,
+      "red": {
+        "station_health": 618.71326,
+        "minerals": 24.967768,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 662.4148,
+        "minerals": 0.06625479,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 4
+    },
+    {
+      "tick": 34800,
+      "red": {
+        "station_health": 628.7108,
+        "minerals": 4.967659,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 662.4148,
+        "minerals": 0.06625479,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 35100,
+      "red": {
+        "station_health": 637.34204,
+        "minerals": 12.70088,
+        "rockets": 3,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 662.4148,
+        "minerals": 0.06625479,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 314,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 35400,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.034222767,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 662.4148,
+        "minerals": 0.06625479,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 317,
+      "bullets_in_flight": 3
+    },
+    {
+      "tick": 35700,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.034222767,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 671.5792,
+        "minerals": 31.73319,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 317,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 36000,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.034222767,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 681.5768,
+        "minerals": 11.7329855,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 317,
+      "bullets_in_flight": 16
+    },
+    {
+      "tick": 36300,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.034222767,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 689.6748,
+        "minerals": 20.532934,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 316,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 36600,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.034222767,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 699.67236,
+        "minerals": 0.5328871,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 316,
+      "bullets_in_flight": 13
+    },
+    {
+      "tick": 36900,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.03422165,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 699.90564,
+        "minerals": 0.066220455,
+        "rockets": 2,
+        "tugs": 2
+      },
+      "asteroids_remaining": 314,
+      "bullets_in_flight": 20
+    },
+    {
+      "tick": 37200,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.03422165,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 702.2384,
+        "minerals": 20.399492,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 313,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 37500,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.03422165,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 712.23596,
+        "minerals": 25.39938,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 312,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 37800,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.03422165,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 722.2335,
+        "minerals": 5.3992653,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 311,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 38100,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.03422165,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 725.2661,
+        "minerals": 24.332592,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 310,
+      "bullets_in_flight": 5
+    },
+    {
+      "tick": 38400,
+      "red": {
+        "station_health": 643.6738,
+        "minerals": 0.03422165,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 735.2637,
+        "minerals": 4.332493,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 310,
+      "bullets_in_flight": 9
+    },
+    {
+      "tick": 38700,
+      "red": {
+        "station_health": 644.37366,
+        "minerals": 23.634203,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 737.3965,
+        "minerals": 0.06582754,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 308,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 39000,
+      "red": {
+        "station_health": 654.3712,
+        "minerals": 3.6341133,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 742.39526,
+        "minerals": 15.065709,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 5
+    },
+    {
+      "tick": 39300,
+      "red": {
+        "station_health": 656.1708,
+        "minerals": 0.034114048,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 749.89343,
+        "minerals": 0.06572073,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 39600,
+      "red": {
+        "station_health": 656.1708,
+        "minerals": 0.034114048,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 749.89343,
+        "minerals": 0.06572073,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 39900,
+      "red": {
+        "station_health": 656.1708,
+        "minerals": 0.034114048,
+        "rockets": 7,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 749.89343,
+        "minerals": 0.06572073,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 307,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 40200,
+      "red": {
+        "station_health": 656.1708,
+        "minerals": 0.034114838,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 749.89343,
+        "minerals": 0.06572073,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 306,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 40500,
+      "red": {
+        "station_health": 656.1708,
+        "minerals": 0.034114838,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 749.89343,
+        "minerals": 0.06572073,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 306,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 40800,
+      "red": {
+        "station_health": 656.1708,
+        "minerals": 0.034114838,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 755.49207,
+        "minerals": 38.86589,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 305,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 41100,
+      "red": {
+        "station_health": 664.5021,
+        "minerals": 8.367335,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 765.4896,
+        "minerals": 18.865818,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 304,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 41400,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034007236,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 775.4872,
+        "minerals": 23.865877,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 4
+    },
+    {
+      "tick": 41700,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034007236,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 785.48474,
+        "minerals": 3.8657846,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 42000,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034007236,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 787.3843,
+        "minerals": 0.06578558,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 7
+    },
+    {
+      "tick": 42300,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034007236,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 787.3843,
+        "minerals": 0.06578558,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 303,
+      "bullets_in_flight": 6
+    },
+    {
+      "tick": 42600,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034008026,
+        "rockets": 4,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 787.3843,
+        "minerals": 0.06578558,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 302,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 42900,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034008026,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 787.3843,
+        "minerals": 0.06578558,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 304,
+      "bullets_in_flight": 0
+    },
+    {
+      "tick": 43200,
+      "red": {
+        "station_health": 668.6677,
+        "minerals": 0.034008026,
+        "rockets": 5,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 788.584,
+        "minerals": 22.665754,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 302,
+      "bullets_in_flight": 1
+    },
+    {
+      "tick": 43500,
+      "red": {
+        "station_health": 677.56555,
+        "minerals": 69.73428,
+        "rockets": 6,
+        "tugs": 2
+      },
+      "blue": {
+        "station_health": 798.58154,
+        "minerals": 2.6656818,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 298,
+      "bullets_in_flight": 2
+    },
+    {
+      "tick": 43800,
+      "red": {
+        "station_health": 687.4298,
+        "minerals": 0.0011216849,
+        "rockets": 6,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 799.8812,
+        "minerals": 0.06568163,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 298,
+      "bullets_in_flight": 11
+    },
+    {
+      "tick": 44100,
+      "red": {
+        "station_health": 687.4298,
+        "minerals": 0.0011216849,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 449.88123,
+        "minerals": 0.06568163,
+        "rockets": 1,
+        "tugs": 2
+      },
+      "asteroids_remaining": 298,
+      "bullets_in_flight": 22
+    },
+    {
+      "tick": 44400,
+      "red": {
+        "station_health": 687.4298,
+        "minerals": 0.0011216849,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 449.88123,
+        "minerals": 0.06568163,
+        "rockets": 0,
+        "tugs": 2
+      },
+      "asteroids_remaining": 298,
+      "bullets_in_flight": 14
+    },
+    {
+      "tick": 44700,
+      "red": {
+        "station_health": 690.1625,
+        "minerals": 19.534382,
+        "rockets": 7,
+        "tugs": 3
+      },
+      "blue": {
+        "station_health": 449.88123,
+        "minerals": 0.06568163,
+        "rockets": 0,
+        "tugs": 1
+      },
+      "asteroids_remaining": 297,
+      "bullets_in_flight": 13
+    }
+  ]
+}
