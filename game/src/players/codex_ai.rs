@@ -118,7 +118,23 @@ impl PlayerAI for CodexAI {
                     .partial_cmp(&state.distance(rocket.position, b.position))
                     .unwrap_or(std::cmp::Ordering::Equal)
             });
-            let defend_station = station_threat.is_some() && rocket.id.0 % 2 == 0;
+            let red_early_defenders =
+                if state.my_team == Team::Red && state.tick < 12000 && station_threat.is_some() {
+                    if state.my_station.health < state.my_station.max_health * 0.92
+                        || state.enemy_rockets.len() >= 5
+                    {
+                        4
+                    } else {
+                        2
+                    }
+                } else {
+                    0
+                };
+            let defend_station = if red_early_defenders > 0 {
+                rocket_idx < red_early_defenders
+            } else {
+                station_threat.is_some() && rocket.id.0 % 2 == 0
+            };
             let mining_target = if rocket_idx < mining_rocket_count {
                 large_asteroids
                     .iter()
