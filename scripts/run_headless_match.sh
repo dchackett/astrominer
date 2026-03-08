@@ -15,7 +15,18 @@ LOG_FILE="${5:-}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GAME_DIR="$REPO_ROOT/game"
 
+# Resolve artifact/log paths against repo root before changing directories.
+if [[ "$ARTIFACT_JSON" != /* ]]; then
+  ARTIFACT_JSON="$REPO_ROOT/$ARTIFACT_JSON"
+fi
+if [[ -n "$LOG_FILE" && "$LOG_FILE" != /* ]]; then
+  LOG_FILE="$REPO_ROOT/$LOG_FILE"
+fi
+
 mkdir -p "$(dirname "$ARTIFACT_JSON")"
+if [[ -n "$LOG_FILE" ]]; then
+  mkdir -p "$(dirname "$LOG_FILE")"
+fi
 mkdir -p "$TARGET_DIR"
 
 pushd "$GAME_DIR" >/dev/null
