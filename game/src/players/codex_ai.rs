@@ -446,6 +446,43 @@ impl PlayerAI for CodexAI {
         }
 
         if cmds.station.beam_targets.len() < 5 {
+            let mut beamable_enemy_rockets: Vec<&RocketView> = state
+                .enemy_rockets
+                .iter()
+                .filter(|r| {
+                    state.distance(r.position, state.my_station.position) <= beam_radius
+                        && approaching_point(
+                            state,
+                            r.position,
+                            r.velocity_vec2(),
+                            state.my_station.position,
+                            25.0,
+                        )
+                })
+                .collect();
+            beamable_enemy_rockets.sort_by(|a, b| {
+                state
+                    .distance(a.position, state.my_station.position)
+                    .partial_cmp(&state.distance(b.position, state.my_station.position))
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+            for rocket in beamable_enemy_rockets {
+                if cmds.station.beam_targets.len() >= 5 {
+                    break;
+                }
+                let away =
+                    -dv2(state, rocket.position, state.my_station.position).normalize_or_zero();
+                let lateral = Vec2::new(-away.y, away.x).normalize_or_zero();
+                let side = if rocket.id.0 % 2 == 0 { 1.0 } else { -1.0 };
+                let force = (away * 0.8 + lateral * side * 0.2).normalize_or_zero();
+                cmds.station.beam_targets.push(BeamCommand {
+                    target: rocket.id,
+                    force_direction: [force.x, force.y],
+                });
+            }
+        }
+
+        if cmds.station.beam_targets.len() < 5 {
             for ast in state.asteroids.iter().filter(|a| {
                 a.tier <= 2 && state.distance(a.position, state.my_station.position) <= beam_radius
             }) {
