@@ -22,6 +22,24 @@ impl PlayerAI for CodexAI {
     fn tick(&mut self, state: &GameStateView) -> Commands {
         let mut cmds = Commands::default();
         let beam_radius = state.my_station.beam_radius;
+        let large_asteroids: Vec<&AsteroidView> =
+            state.asteroids.iter().filter(|a| a.tier >= 3).collect();
+        let station_threat = state
+            .enemy_rockets
+            .iter()
+            .filter(|r| state.distance(r.position, state.my_station.position) < 3600.0)
+            .min_by(|a, b| {
+                state
+                    .distance(a.position, state.my_station.position)
+                    .partial_cmp(&state.distance(b.position, state.my_station.position))
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        let severe_station_threat = state
+            .enemy_rockets
+            .iter()
+            .filter(|r| state.distance(r.position, state.my_station.position) < 2000.0)
+            .count()
+            >= 2;
 
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
             let need_tugs = state.my_tugs.is_empty()
@@ -30,10 +48,12 @@ impl PlayerAI for CodexAI {
                     && (state.tick < 900
                         || state.my_rockets.len() >= 3
                         || state.my_station.resources > 140.0))
-                || (state.tick < 2400
+                || (state.tick < 2200
                     && state.my_tugs.len() < 3
-                    && state.enemy_rockets.len() + 2 < state.my_rockets.len()
-                    && state.my_station.resources > 130.0);
+                    && state.my_station.resources > 75.0
+                    && (state.tick < 1000
+                        || (!large_asteroids.is_empty() && state.my_rockets.len() >= 2)
+                        || state.my_rockets.len() >= state.enemy_rockets.len()));
             let need_rockets = state.my_rockets.len() < 7
                 || state.enemy_rockets.len() >= state.my_rockets.len()
                 || (state.my_station.resources >= 120.0 && state.my_rockets.len() < 18);
@@ -47,35 +67,68 @@ impl PlayerAI for CodexAI {
             cmds.station.build = build;
         }
 
-        for rocket in &state.my_rockets {
+        let mining_rocket_count = if severe_station_threat || large_asteroids.is_empty() {
+            0
+        } else if state.tick < 2400 {
+            state
+                .my_rockets
+                .len()
+                .min(if state.my_tugs.len() >= 2 { 2 } else { 1 })
+        } else if state.my_station.resources < 90.0 && state.my_tugs.len() >= 2 {
+            state.my_rockets.len().min(1)
+        } else {
+            0
+        };
+        let mut rockets_by_id: Vec<&RocketView> = state.my_rockets.iter().collect();
+        rockets_by_id.sort_by_key(|r| r.id.0);
+        let mut claimed_large = Vec::new();
+
+        for (rocket_idx, rocket) in rockets_by_id.iter().enumerate() {
+            let rocket = *rocket;
             let nearest_threat = state.enemy_rockets.iter().min_by(|a, b| {
                 state
                     .distance(rocket.position, a.position)
                     .partial_cmp(&state.distance(rocket.position, b.position))
                     .unwrap_or(std::cmp::Ordering::Equal)
             });
-
-            let station_threat = state
-                .enemy_rockets
-                .iter()
-                .filter(|r| state.distance(r.position, state.my_station.position) < 3600.0)
-                .min_by(|a, b| {
-                    state
-                        .distance(a.position, state.my_station.position)
-                        .partial_cmp(&state.distance(b.position, state.my_station.position))
-                        .unwrap_or(std::cmp::Ordering::Equal)
-                });
-
             let defend_station = station_threat.is_some() && rocket.id.0 % 2 == 0;
-            let (target_pos, target_vel, standoff) = if let Some(t) = station_threat.filter(|_| defend_station) {
-                (t.position, t.velocity, 180.0)
-            } else if let Some(t) =
-                nearest_threat.filter(|t| state.distance(rocket.position, t.position) < 2200.0)
-            {
-                (t.position, t.velocity, 220.0)
+            let mining_target = if rocket_idx < mining_rocket_count {
+                large_asteroids
+                    .iter()
+                    .filter(|a| !claimed_large.contains(&a.id))
+                    .min_by(|a, b| {
+                        let rocket_bias_a = state.distance(rocket.position, a.position) * 0.9;
+                        let rocket_bias_b = state.distance(rocket.position, b.position) * 0.9;
+                        let station_bias_a = state.distance(state.my_station.position, a.position);
+                        let station_bias_b = state.distance(state.my_station.position, b.position);
+                        let size_bias_a = -(a.tier as f32) * 140.0;
+                        let size_bias_b = -(b.tier as f32) * 140.0;
+                        let score_a = rocket_bias_a + station_bias_a + size_bias_a;
+                        let score_b = rocket_bias_b + station_bias_b + size_bias_b;
+                        score_a
+                            .partial_cmp(&score_b)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
+                    .copied()
             } else {
-                (state.enemy_station.position, [0.0, 0.0], 420.0)
+                None
             };
+            if let Some(ast) = mining_target {
+                claimed_large.push(ast.id);
+            }
+
+            let (target_pos, target_vel, standoff) =
+                if let Some(t) = station_threat.filter(|_| defend_station) {
+                    (t.position, t.velocity, 180.0)
+                } else if let Some(ast) = mining_target {
+                    (ast.position, ast.velocity, ast.radius + 220.0)
+                } else if let Some(t) =
+                    nearest_threat.filter(|t| state.distance(rocket.position, t.position) < 2200.0)
+                {
+                    (t.position, t.velocity, 220.0)
+                } else {
+                    (state.enemy_station.position, [0.0, 0.0], 420.0)
+                };
 
             let cmd = fly_and_shoot(state, rocket, target_pos, target_vel, standoff);
             cmds.rockets.insert(rocket.id, cmd);
@@ -83,36 +136,186 @@ impl PlayerAI for CodexAI {
 
         self.tug_targets.retain(|tid, aid| {
             state.my_tugs.iter().any(|t| t.id == *tid)
-                && state.asteroids.iter().any(|a| a.id == *aid && a.tier <= 2)
+                && state.asteroids.iter().any(|a| {
+                    a.id == *aid
+                        && a.tier <= 2
+                        && state.distance(a.position, state.my_station.position)
+                            > beam_radius - 20.0
+                })
         });
         let mut claimed: Vec<EntityId> = state.my_tugs.iter().filter_map(|t| t.carrying).collect();
         claimed.extend(self.tug_targets.values().copied());
+        let incoming_station_bullets = state
+            .bullets
+            .iter()
+            .filter(|b| {
+                b.team != state.my_team
+                    && state.distance(b.position, state.my_station.position) < beam_radius + 220.0
+                    && approaching_point(
+                        state,
+                        b.position,
+                        b.velocity_vec2(),
+                        state.my_station.position,
+                        100.0,
+                    )
+            })
+            .count();
+        let defense_tug_count = if state.my_tugs.len() >= 3
+            && (severe_station_threat || incoming_station_bullets > 0)
+        {
+            1
+        } else {
+            0
+        };
+        let mut tugs_by_station: Vec<&TugView> = state.my_tugs.iter().collect();
+        tugs_by_station.sort_by(|a, b| {
+            state
+                .distance(a.position, state.my_station.position)
+                .partial_cmp(&state.distance(b.position, state.my_station.position))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+        let defender_tug_ids: Vec<EntityId> = tugs_by_station
+            .into_iter()
+            .take(defense_tug_count)
+            .map(|t| t.id)
+            .collect();
 
         for tug in &state.my_tugs {
             let mut cmd = TugCommand::default();
             let tug_vel = tug.velocity_vec2();
-            if tug.carrying.is_some() {
-                let to_station = dv2(state, tug.position, state.my_station.position);
-                let dist = to_station.length();
-                let dir = to_station.normalize_or_zero();
-                if dist < beam_radius - 32.0 {
-                    cmd.beam_target = None;
-                    let escape = -dir * 90.0;
-                    cmd.thrust = [escape.x, escape.y];
-                    self.tug_targets.remove(&tug.id);
-                } else {
-                    let desired_speed = if dist < beam_radius + 80.0 {
-                        40.0
+            let is_defender = defender_tug_ids.contains(&tug.id);
+            if let Some(carried_id) = tug.carrying {
+                if state
+                    .asteroids
+                    .iter()
+                    .any(|a| a.id == carried_id && a.tier <= 2)
+                {
+                    let to_station = dv2(state, tug.position, state.my_station.position);
+                    let dist = to_station.length();
+                    let dir = to_station.normalize_or_zero();
+                    if dist < beam_radius - 32.0 {
+                        cmd.beam_target = None;
+                        let escape = -dir * 90.0;
+                        cmd.thrust = [escape.x, escape.y];
+                        self.tug_targets.remove(&tug.id);
                     } else {
-                        160.0
+                        let desired_speed = if dist < beam_radius + 80.0 {
+                            40.0
+                        } else {
+                            160.0
+                        };
+                        let desired_v = dir * desired_speed;
+                        let dv = desired_v - tug_vel;
+                        cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                        cmd.beam_target = Some(carried_id);
+                    }
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
+                }
+
+                if let Some(bullet) = state
+                    .bullets
+                    .iter()
+                    .find(|b| b.id == carried_id && b.team != state.my_team)
+                {
+                    let away_station =
+                        -dv2(state, bullet.position, state.my_station.position).normalize_or_zero();
+                    let bullet_dir = bullet.velocity_vec2().normalize_or_zero();
+                    let lateral = Vec2::new(-bullet_dir.y, bullet_dir.x).normalize_or_zero();
+                    let side = if lateral.dot(away_station) >= 0.0 {
+                        1.0
+                    } else {
+                        -1.0
                     };
-                    let desired_v = dir * desired_speed;
+                    let desired_v = away_station * 110.0 + lateral * side * 80.0;
                     let dv = desired_v - tug_vel;
                     cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
-                    cmd.beam_target = tug.carrying;
+                    cmd.beam_target = Some(carried_id);
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
                 }
+
+                if let Some(enemy) = state.enemy_rockets.iter().find(|r| r.id == carried_id) {
+                    let away_station =
+                        -dv2(state, enemy.position, state.my_station.position).normalize_or_zero();
+                    let lateral = Vec2::new(-away_station.y, away_station.x).normalize_or_zero();
+                    let side = if lateral.dot(dv2(state, enemy.position, tug.position)) >= 0.0 {
+                        1.0
+                    } else {
+                        -1.0
+                    };
+                    let desired_v = away_station * 120.0 + lateral * side * 60.0;
+                    let dv = desired_v - tug_vel;
+                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                    cmd.beam_target = Some(carried_id);
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
+                }
+
+                cmd.beam_target = None;
                 cmds.tugs.insert(tug.id, cmd);
                 continue;
+            }
+
+            if is_defender {
+                if let Some(bullet) = state
+                    .bullets
+                    .iter()
+                    .filter(|b| {
+                        b.team != state.my_team
+                            && state.distance(tug.position, b.position) < 170.0
+                            && state.distance(b.position, state.my_station.position)
+                                < beam_radius + 220.0
+                            && approaching_point(
+                                state,
+                                b.position,
+                                b.velocity_vec2(),
+                                state.my_station.position,
+                                100.0,
+                            )
+                    })
+                    .min_by(|a, b| {
+                        state
+                            .distance(a.position, state.my_station.position)
+                            .partial_cmp(&state.distance(b.position, state.my_station.position))
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
+                {
+                    let to_bullet = dv2(state, tug.position, bullet.position);
+                    let desired_v =
+                        to_bullet.normalize_or_zero() * 120.0 + bullet.velocity_vec2() * 0.15;
+                    let dv = desired_v - tug_vel;
+                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                    cmd.beam_target = Some(bullet.id);
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
+                }
+
+                if let Some(enemy) = state
+                    .enemy_rockets
+                    .iter()
+                    .filter(|r| {
+                        state.distance(tug.position, r.position) < 220.0
+                            && state.distance(r.position, state.my_station.position) < 1600.0
+                    })
+                    .min_by(|a, b| {
+                        state
+                            .distance(a.position, state.my_station.position)
+                            .partial_cmp(&state.distance(b.position, state.my_station.position))
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
+                {
+                    let to_enemy = dv2(state, tug.position, enemy.position);
+                    let desired_v =
+                        to_enemy.normalize_or_zero() * 110.0 + enemy.velocity_vec2() * 0.2;
+                    let dv = desired_v - tug_vel;
+                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
+                    if to_enemy.length() < 170.0 {
+                        cmd.beam_target = Some(enemy.id);
+                    }
+                    cmds.tugs.insert(tug.id, cmd);
+                    continue;
+                }
             }
 
             let target_id = self
@@ -129,7 +332,12 @@ impl PlayerAI for CodexAI {
                     let best = state
                         .asteroids
                         .iter()
-                        .filter(|a| a.tier <= 2 && !claimed.contains(&a.id))
+                        .filter(|a| {
+                            a.tier <= 2
+                                && !claimed.contains(&a.id)
+                                && state.distance(a.position, state.my_station.position)
+                                    > beam_radius
+                        })
                         .min_by(|a, b| {
                             let sa = state.distance(tug.position, a.position)
                                 + state.distance(a.position, state.my_station.position) * 0.6;
@@ -345,4 +553,15 @@ fn friendly_in_line_of_fire(state: &GameStateView, rocket: &RocketView, target_d
     }
 
     false
+}
+
+fn approaching_point(
+    state: &GameStateView,
+    position: [f32; 2],
+    velocity: Vec2,
+    target: [f32; 2],
+    threshold: f32,
+) -> bool {
+    let to_target = dv2(state, position, target).normalize_or_zero();
+    velocity.dot(to_target) > threshold
 }

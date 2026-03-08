@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use super::components::*;
+use bevy::prelude::*;
 
 /// Apply thrust force to velocity based on entity's facing direction.
 pub fn apply_thrust(
@@ -25,5 +25,6 @@ pub fn integrate_positions(
         transform.translation.x += vel.0.x * dt;
         transform.translation.y += vel.0.y * dt;
         transform.rotate_z(ang_vel.0 * dt);
+        transform.rotation = transform.rotation.normalize();
     }
 }
