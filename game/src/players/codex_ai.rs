@@ -42,6 +42,11 @@ impl PlayerAI for CodexAI {
             >= 2;
 
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
+            let late_econ_tug = state.tick >= 2200
+                && state.my_tugs.len() < 3
+                && state.my_station.resources > 110.0
+                && state.my_rockets.len() >= 5
+                && state.enemy_tugs.len() >= state.my_tugs.len();
             let need_tugs = state.my_tugs.is_empty()
                 || (state.my_tugs.len() < 2
                     && state.my_station.resources > 85.0
@@ -53,7 +58,8 @@ impl PlayerAI for CodexAI {
                     && state.my_station.resources > 75.0
                     && (state.tick < 1000
                         || (!large_asteroids.is_empty() && state.my_rockets.len() >= 2)
-                        || state.my_rockets.len() >= state.enemy_rockets.len()));
+                        || state.my_rockets.len() >= state.enemy_rockets.len()))
+                || late_econ_tug;
             let need_rockets = state.my_rockets.len() < 7
                 || state.enemy_rockets.len() >= state.my_rockets.len()
                 || (state.my_station.resources >= 120.0 && state.my_rockets.len() < 18);
@@ -82,6 +88,15 @@ impl PlayerAI for CodexAI {
         let mut rockets_by_id: Vec<&RocketView> = state.my_rockets.iter().collect();
         rockets_by_id.sort_by_key(|r| r.id.0);
         let mut claimed_large = Vec::new();
+        let tug_hunter_count = if !state.enemy_tugs.is_empty()
+            && (state.enemy_tugs.len() > state.my_tugs.len()
+                || state.enemy_station.resources > state.my_station.resources + 25.0)
+            && rockets_by_id.len() > mining_rocket_count
+        {
+            1
+        } else {
+            0
+        };
 
         for (rocket_idx, rocket) in rockets_by_id.iter().enumerate() {
             let rocket = *rocket;
@@ -117,11 +132,33 @@ impl PlayerAI for CodexAI {
                 claimed_large.push(ast.id);
             }
 
+            let hunt_tug = rocket_idx >= mining_rocket_count
+                && rocket_idx < mining_rocket_count + tug_hunter_count;
+            let tug_target = if hunt_tug {
+                state.enemy_tugs.iter().min_by(|a, b| {
+                    let carry_bias_a = if a.carrying.is_some() { -220.0 } else { 0.0 };
+                    let carry_bias_b = if b.carrying.is_some() { -220.0 } else { 0.0 };
+                    let score_a = state.distance(rocket.position, a.position)
+                        + state.distance(a.position, state.enemy_station.position) * 0.25
+                        + carry_bias_a;
+                    let score_b = state.distance(rocket.position, b.position)
+                        + state.distance(b.position, state.enemy_station.position) * 0.25
+                        + carry_bias_b;
+                    score_a
+                        .partial_cmp(&score_b)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                })
+            } else {
+                None
+            };
+
             let (target_pos, target_vel, standoff) =
                 if let Some(t) = station_threat.filter(|_| defend_station) {
                     (t.position, t.velocity, 180.0)
                 } else if let Some(ast) = mining_target {
                     (ast.position, ast.velocity, ast.radius + 220.0)
+                } else if let Some(tug) = tug_target {
+                    (tug.position, tug.velocity, 170.0)
                 } else if let Some(t) =
                     nearest_threat.filter(|t| state.distance(rocket.position, t.position) < 2200.0)
                 {
@@ -460,25 +497,31 @@ impl PlayerAI for CodexAI {
                         )
                 })
                 .collect();
-            beamable_enemy_rockets.sort_by(|a, b| {
-                state
-                    .distance(a.position, state.my_station.position)
-                    .partial_cmp(&state.distance(b.position, state.my_station.position))
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-            for rocket in beamable_enemy_rockets {
-                if cmds.station.beam_targets.len() >= 5 {
-                    break;
-                }
-                let away =
-                    -dv2(state, rocket.position, state.my_station.position).normalize_or_zero();
-                let lateral = Vec2::new(-away.y, away.x).normalize_or_zero();
-                let side = if rocket.id.0 % 2 == 0 { 1.0 } else { -1.0 };
-                let force = (away * 0.8 + lateral * side * 0.2).normalize_or_zero();
-                cmds.station.beam_targets.push(BeamCommand {
-                    target: rocket.id,
-                    force_direction: [force.x, force.y],
+            let urgent_station_pressure = severe_station_threat
+                || incoming_station_bullets >= 2
+                || state.my_station.health < state.my_station.max_health * 0.7
+                || beamable_enemy_rockets.len() >= 2;
+            if urgent_station_pressure {
+                beamable_enemy_rockets.sort_by(|a, b| {
+                    state
+                        .distance(a.position, state.my_station.position)
+                        .partial_cmp(&state.distance(b.position, state.my_station.position))
+                        .unwrap_or(std::cmp::Ordering::Equal)
                 });
+                for rocket in beamable_enemy_rockets {
+                    if cmds.station.beam_targets.len() >= 5 {
+                        break;
+                    }
+                    let away =
+                        -dv2(state, rocket.position, state.my_station.position).normalize_or_zero();
+                    let lateral = Vec2::new(-away.y, away.x).normalize_or_zero();
+                    let side = if rocket.id.0 % 2 == 0 { 1.0 } else { -1.0 };
+                    let force = (away * 0.8 + lateral * side * 0.2).normalize_or_zero();
+                    cmds.station.beam_targets.push(BeamCommand {
+                        target: rocket.id,
+                        force_direction: [force.x, force.y],
+                    });
+                }
             }
         }
 
