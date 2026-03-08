@@ -1,8 +1,7 @@
-//! ClaudeAI v8 — team-aware asymmetric strategy.
+//! ClaudeAI v9 — smarter beam defense, red concentrated rush.
 //!
-//! v8 changes over v7: red-side aggressive (narrow defense, low retreat, fast rockets),
-//! blue-side defensive (wide defense, high retreat). Tighter attack coordination,
-//! reduced tug count when red for faster rocket economy.
+//! v9 changes over v8: station beams repel ALL enemy rockets in range when station
+//! health drops below 80% (not just approaching ones). Red side unchanged from v8.
 
 use crate::api::*;
 use crate::config::GameConfig;
@@ -63,9 +62,10 @@ impl PlayerAI for ClaudeAI {
         let early_game = state.tick < 600;
         let is_red = state.my_team == Team::Red;
 
-        // Team-aware defense radius: tight when red (attack focus), wide when blue
+        // Team-aware defense radius: tight when red (attack focus), moderate when blue
         let defense_detect_radius = if is_red { 1800.0 } else { 2500.0 };
         let defense_divert_radius = if is_red { 2000.0 } else { 3000.0 };
+        let station_under_pressure = state.my_station.health < state.my_station.max_health * 0.8;
 
         // Defend against rockets approaching our station
         let station_threats: Vec<&RocketView> = state
@@ -185,7 +185,6 @@ impl PlayerAI for ClaudeAI {
 
             // Priority 1: Defend against threats very close to our station
             if !station_threats.is_empty() {
-                // Divert rockets that are reasonably near our station
                 if dist_to_station < defense_divert_radius {
                     let closest_threat = station_threats
                         .iter()
@@ -338,20 +337,9 @@ impl PlayerAI for ClaudeAI {
                 } else {
                     fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 250.0)
                 }
-            } else if is_red {
-                // Red: concentrated rush — all rockets converge on station
-                fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 300.0)
             } else {
-                // Blue: flanking approach — each rocket approaches from a different angle
-                let base_delta = dv2(state, rocket.position, state.enemy_station.position);
-                let base_angle = base_delta.y.atan2(base_delta.x);
-                let flank_offset = (rocket.id.0 % 7) as f32 * std::f32::consts::TAU / 7.0;
-                let approach_angle = base_angle + (flank_offset - std::f32::consts::PI) * 0.3;
-                let approach_pos = [
-                    state.enemy_station.position[0] - approach_angle.cos() * 800.0,
-                    state.enemy_station.position[1] - approach_angle.sin() * 800.0,
-                ];
-                fly_and_shoot(state, rocket, approach_pos, [0.0, 0.0], 250.0)
+                // Concentrated rush — all rockets converge on enemy station
+                fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 300.0)
             };
             cmds.rockets.insert(rocket.id, cmd);
         }
@@ -533,7 +521,7 @@ impl PlayerAI for ClaudeAI {
             });
         }
 
-        // Use beams to repel incoming enemy rockets
+        // Use beams to repel incoming enemy rockets (all in range during emergency)
         if beam_cmds.len() < 5 {
             let mut incoming_rockets: Vec<(&RocketView, f32)> = state
                 .enemy_rockets
@@ -544,11 +532,13 @@ impl PlayerAI for ClaudeAI {
                     if dist > beam_radius {
                         return None;
                     }
-                    // Only repel rockets heading toward us
-                    let rv = r.velocity_vec2();
-                    let toward = -to_rocket.normalize_or_zero();
-                    if rv.dot(toward) < 30.0 {
-                        return None;
+                    // Under pressure, repel ALL enemy rockets in beam range
+                    if !station_under_pressure {
+                        let rv = r.velocity_vec2();
+                        let toward = -to_rocket.normalize_or_zero();
+                        if rv.dot(toward) < 30.0 {
+                            return None;
+                        }
                     }
                     Some((r, dist))
                 })
