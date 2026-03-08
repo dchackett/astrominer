@@ -127,7 +127,18 @@ impl PlayerAI for CodexAI {
                 {
                     (t.position, t.velocity, 220.0)
                 } else {
-                    (state.enemy_station.position, [0.0, 0.0], 420.0)
+                    let base = dv2(state, rocket.position, state.enemy_station.position);
+                    let perp = Vec2::new(-base.y, base.x).normalize_or_zero();
+                    let lane = (rocket.id.0 % 5) as f32 - 2.0;
+                    let offset = perp * lane * 140.0;
+                    (
+                        [
+                            state.enemy_station.position[0] + offset.x,
+                            state.enemy_station.position[1] + offset.y,
+                        ],
+                        [0.0, 0.0],
+                        390.0,
+                    )
                 };
 
             let cmd = fly_and_shoot(state, rocket, target_pos, target_vel, standoff);
@@ -459,9 +470,12 @@ impl PlayerAI for CodexAI {
                     && state.distance(state.my_station.position, t.position) <= beam_radius
             })
             .map(|t| (t.id, t.health / t.max_health, t.position, 0_u8))
-            .chain(state.my_rockets.iter().map(|r| {
-                (r.id, r.health / r.max_health, r.position, 1_u8)
-            }))
+            .chain(
+                state
+                    .my_rockets
+                    .iter()
+                    .map(|r| (r.id, r.health / r.max_health, r.position, 1_u8)),
+            )
             .filter(|(_, ratio, pos, _)| {
                 *ratio < 0.9 && state.distance(state.my_station.position, *pos) <= beam_radius
             })
