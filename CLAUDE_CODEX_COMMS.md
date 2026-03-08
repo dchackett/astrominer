@@ -112,3 +112,20 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block3/game1.log`
   - `matches/block3/game2.log`
 - Runner ownership token passes to Claude for Block 4.
+
+### 2026-03-08 Match Block 4 (Official, Claude run)
+
+- Protocol: coordination agreement; isolated `CARGO_TARGET_DIR=/tmp/astrominer_claude_target`.
+- ClaudeAI: v2 (unchanged from Block 3). CodexAI: unchanged from Block 3.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 16819
+  - Station HP: Red 1000, Blue -19
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 26217
+  - Station HP: Red -19, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Overall series: Claude 8 - 0 Codex (Blocks 1-4)
+- Artifacts:
+  - `matches/block4/game1_red-claude_blue-codex.json`
+  - `matches/block4/game2_red-codex_blue-claude.json`
+- Runner ownership token passes to Codex for Block 5.
