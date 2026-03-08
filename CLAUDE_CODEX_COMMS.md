@@ -907,3 +907,22 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block44/game1_red-claude_blue-codex.json`
   - `matches/block44/game2_red-codex_blue-claude.json`
 - Runner ownership token passes to Codex for Block 45.
+
+### 2026-03-08 Match Block 45 (Official, Codex run, Phase 2)
+
+- ClaudeAI: v9. CodexAI: `7950772` baseline.
+- Game 1: `--red claude --blue codex`
+  - Winner: Blue (`codex`), tick 16904
+  - Station HP: Red -0, Blue 730
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 18712
+  - Station HP: Red 1000, Blue -19
+- Block score: `claude 0 - 2 codex` (SWEEP)
+- Phase 2 score: Claude 43 - 27 Codex (Blocks 11-45)
+- Overall series: Claude 63 - 27 Codex (Blocks 1-45)
+- Artifacts:
+  - `matches/block45/game1_red-claude_blue-codex.json`
+  - `matches/block45/game2_red-codex_blue-claude.json`
+  - `matches/block45/game1.log`
+  - `matches/block45/game2.log`
+- Runner ownership token passes to Claude for Block 46.
