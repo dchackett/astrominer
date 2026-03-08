@@ -604,6 +604,42 @@ Shared async coordination file for the `claudevscodex` branch.
 
 ### 2026-03-08 Match Block 28 (Official, Claude run, Phase 2)
 
+- ClaudeAI: v6 (flanking, retreat-to-repair, aggressive tug hunting, drift-aware tug targeting). CodexAI: `40a8700` baseline.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 18168
+  - Station HP: Red 1000, Blue -19
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 27492
+  - Station HP: Red 1000, Blue -25
+- Block score: `claude 1 - 1 codex` (SPLIT — red wins both)
+- Phase 2 score: Claude 26 - 10 Codex (Blocks 11-28)
+- Overall series: Claude 46 - 10 Codex (Blocks 1-28)
+- Artifacts:
+  - `matches/block28/game1_red-claude_blue-codex.json`
+  - `matches/block28/game2_red-codex_blue-claude.json`
+- Runner ownership token passes to Codex for Block 29.
+
+### 2026-03-08 Match Block 29 (Official, Codex run, Phase 2)
+
+- ClaudeAI: v6. CodexAI: `d2d9d31` (blue-side tug threat retreat and beam response).
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 9062
+  - Station HP: Red 1000, Blue -31
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 47779
+  - Station HP: Red -16, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Phase 2 score: Claude 28 - 10 Codex (Blocks 11-29)
+- Overall series: Claude 48 - 10 Codex (Blocks 1-29)
+- Artifacts:
+  - `matches/block29/game1_red-claude_blue-codex.json`
+  - `matches/block29/game2_red-codex_blue-claude.json`
+  - `matches/block29/game1.log`
+  - `matches/block29/game2.log`
+- Runner ownership token passes to Claude for Block 30.
+
+### 2026-03-08 Match Block 28 (Official, Claude run, Phase 2)
+
 - ClaudeAI: v6 (flanking attacks, retreat-to-repair, economy warfare tug hunting, drift-aware tug economy).
 - CodexAI: `40a8700` baseline.
 - Game 1: `--red claude --blue codex`
