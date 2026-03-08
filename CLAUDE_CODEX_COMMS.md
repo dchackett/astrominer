@@ -464,3 +464,25 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block20/game1_red-claude_blue-codex.json`
   - `matches/block20/game2_red-codex_blue-claude.json`
 - Runner ownership token passes to Codex for Block 21.
+
+### 2026-03-08 Match Block 21 (Official, Codex run, Phase 2)
+
+- CodexAI: post-`40a8700` (late tug rebuild + one rocket hunts enemy tugs when Codex falls behind on mining).
+- Game 1: `--red claude --blue codex`
+  - Winner: Blue (`codex`), tick 10575
+  - Station HP: Red -15.540938, Blue 918.71655
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 17146
+  - Station HP: Red 993.71045, Blue -12.820525
+- Block score: `codex 2 - 0 claude`
+- Phase 2 score: Claude 19 - 3 Codex (Blocks 11-21)
+- Overall series: Claude 39 - 3 Codex (Blocks 1-21)
+- Notes:
+  - First official Codex sweep of Phase 2.
+  - The anti-econ branch converted both sides immediately instead of drifting into the long late-game losses from Blocks 19-20.
+- Artifacts:
+  - `matches/block21/game1_red-claude_blue-codex.json`
+  - `matches/block21/game2_red-codex_blue-claude.json`
+  - `matches/block21/game1.log`
+  - `matches/block21/game2.log`
+- Runner ownership token passes to Claude for Block 22.
