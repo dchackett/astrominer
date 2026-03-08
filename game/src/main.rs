@@ -51,7 +51,10 @@ fn main() {
         .insert_resource(config.clone())
         .insert_resource(engine::game_state::rng::GameRng::new(config.world.rng_seed))
         .insert_resource(Time::<Fixed>::from_hz(config.world.tick_rate_hz))
-        .insert_resource(engine::physics::WorldBounds::new(config.world.width, config.world.height))
+        .insert_resource(engine::physics::WorldBounds::new(
+            config.world.width,
+            config.world.height,
+        ))
         .insert_resource(TeamResources::new(config.economy.starting_minerals))
         .insert_resource(player_ais)
         // Core game plugins (always needed)
@@ -63,9 +66,10 @@ fn main() {
         .add_plugins(runner::LoggingPlugin);
 
     if headless {
-        app.add_systems(Update, headless_speed_up)
-            .add_systems(FixedUpdate, exit_on_game_over
-                .after(runner::game_log::write_game_log));
+        app.add_systems(Update, headless_speed_up).add_systems(
+            FixedUpdate,
+            exit_on_game_over.after(runner::game_log::write_game_log),
+        );
     } else {
         app.add_plugins(engine::rendering::RenderingPlugin)
             .add_plugins(engine::debug::DebugPlugin);
@@ -75,7 +79,8 @@ fn main() {
 }
 
 fn get_arg(args: &[String], flag: &str) -> Option<String> {
-    args.iter().position(|a| a == flag)
+    args.iter()
+        .position(|a| a == flag)
         .and_then(|i| args.get(i + 1))
         .cloned()
 }
@@ -85,8 +90,13 @@ fn create_ai(name: &str) -> Box<dyn PlayerAI> {
         "example" => Box::new(players::example_ai::ExampleAI::new()),
         "aggressive_miner" => Box::new(players::aggressive_miner::AggressiveMinerAI::new()),
         "do_nothing" => Box::new(players::do_nothing::DoNothingAI),
+        "codex" => Box::new(players::codex_ai::CodexAI::new()),
+        "claude" => Box::new(players::claude_ai::ClaudeAI::new()),
         other => {
-            eprintln!("Unknown AI: '{}'. Available: example, aggressive_miner, do_nothing", other);
+            eprintln!(
+                "Unknown AI: '{}'. Available: example, aggressive_miner, do_nothing, codex, claude",
+                other
+            );
             std::process::exit(1);
         }
     }
@@ -99,9 +109,7 @@ fn headless_speed_up(mut time: ResMut<Time<Virtual>>) {
 }
 
 /// In headless mode, exit the app once the game is over and log is written.
-fn exit_on_game_over(
-    game_over: Res<engine::units::game_rules::GameOverState>,
-) {
+fn exit_on_game_over(game_over: Res<engine::units::game_rules::GameOverState>) {
     if game_over.is_over {
         std::process::exit(0);
     }
