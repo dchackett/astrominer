@@ -24,12 +24,13 @@ impl PlayerAI for CodexAI {
         let beam_radius = state.my_station.beam_radius;
 
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
-            let need_tugs = state.my_tugs.len() < 2
-                || (state.tick < 1800
-                    && state.my_tugs.len() < 3
-                    && state.my_station.resources > 70.0);
-            let need_rockets = state.my_rockets.len() < 6
-                || state.enemy_rockets.len() > state.my_rockets.len()
+            let need_tugs = state.my_tugs.is_empty()
+                || (state.tick < 1500
+                    && state.my_tugs.len() < 2
+                    && state.enemy_rockets.len() + 2 < state.my_rockets.len()
+                    && state.my_station.resources > 75.0);
+            let need_rockets = state.my_rockets.len() < 7
+                || state.enemy_rockets.len() >= state.my_rockets.len()
                 || (state.my_station.resources >= 120.0 && state.my_rockets.len() < 18);
             let build = if need_tugs {
                 Some(UnitTypeView::Tug)
@@ -52,7 +53,13 @@ impl PlayerAI for CodexAI {
             let station_threat = state
                 .enemy_rockets
                 .iter()
-                .find(|r| state.distance(r.position, state.my_station.position) < 2800.0);
+                .filter(|r| state.distance(r.position, state.my_station.position) < 3600.0)
+                .min_by(|a, b| {
+                    state
+                        .distance(a.position, state.my_station.position)
+                        .partial_cmp(&state.distance(b.position, state.my_station.position))
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                });
 
             let (target_pos, target_vel, standoff) = if let Some(t) = station_threat {
                 (t.position, t.velocity, 180.0)
@@ -197,7 +204,7 @@ impl PlayerAI for CodexAI {
                     .map(|t| (t.id, t.health / t.max_health, t.position)),
             )
             .filter(|(_, ratio, pos)| {
-                *ratio < 0.75 && state.distance(state.my_station.position, *pos) <= beam_radius
+                *ratio < 0.9 && state.distance(state.my_station.position, *pos) <= beam_radius
             })
             .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
         if let Some((id, _, _)) = repair_candidate {
@@ -236,14 +243,20 @@ fn fly_and_shoot(
     let cross = forward.perp_dot(aim);
     cmd.rotation = cross.clamp(-1.0, 1.0);
 
-    let desired_speed = if dist > standoff + 180.0 {
+    let desired_speed = if dist > standoff + 220.0 {
         210.0
     } else if dist < standoff - 80.0 {
         -80.0
     } else {
-        70.0
+        45.0
     };
-    let desired_v = to_target.normalize_or_zero() * desired_speed + target_v * 0.3;
+    let mut desired_v = to_target.normalize_or_zero() * desired_speed + target_v * 0.3;
+    if dist < 700.0 {
+        let perp = Vec2::new(-to_target.y, to_target.x).normalize_or_zero();
+        let strafe_sign = if rocket.id.0 % 2 == 0 { 1.0 } else { -1.0 };
+        desired_v += perp * strafe_sign * 45.0;
+    }
+    desired_v += bullet_dodge(state, rocket) * 0.8;
     let dv = desired_v - rocket_vel;
     let dv_len = dv.length();
     if dv_len > 5.0 {
@@ -267,6 +280,29 @@ fn fly_and_shoot(
     }
 
     cmd
+}
+
+fn bullet_dodge(state: &GameStateView, rocket: &RocketView) -> Vec2 {
+    let mut dodge = Vec2::ZERO;
+    for b in &state.bullets {
+        if b.team == state.my_team {
+            continue;
+        }
+        let rel = dv2(state, b.position, rocket.position);
+        let dist = rel.length();
+        if !(20.0..450.0).contains(&dist) {
+            continue;
+        }
+        let bv = b.velocity_vec2();
+        let toward = rel.normalize_or_zero();
+        if bv.dot(toward) < 140.0 {
+            continue;
+        }
+        let perp = Vec2::new(-bv.y, bv.x).normalize_or_zero();
+        let side = if perp.dot(rel) > 0.0 { 1.0 } else { -1.0 };
+        dodge += perp * side * (220.0 * (1.0 - dist / 450.0));
+    }
+    dodge
 }
 
 fn friendly_in_line_of_fire(state: &GameStateView, rocket: &RocketView, target_dist: f32) -> bool {
