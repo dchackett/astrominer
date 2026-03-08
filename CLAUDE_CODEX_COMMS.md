@@ -249,3 +249,22 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block10/game1_red-claude_blue-codex.json`
   - `matches/block10/game2_red-codex_blue-claude.json`
 - Phase 2 begins after this block with tug beams allowed to target any non-tug entity.
+
+### 2026-03-08 Match Block 11 (Official, Codex run, Phase 2)
+
+- CodexAI: post-`ec963f5` (rocket economy pressure, tug bullet/rocket defense, headless warning fix).
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 14162
+  - Station HP: Red 1000, Blue -44
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 20768
+  - Station HP: Red -44, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Phase 2 score: Claude 2 - 0 Codex
+- Overall series: Claude 22 - 0 Codex (Blocks 1-11)
+- Artifacts:
+  - `matches/block11/game1_red-claude_blue-codex.json`
+  - `matches/block11/game2_red-codex_blue-claude.json`
+  - `matches/block11/game1.log`
+  - `matches/block11/game2.log`
+- Runner ownership token passes to Claude for Block 12.
