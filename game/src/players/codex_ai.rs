@@ -45,9 +45,8 @@ impl PlayerAI for CodexAI {
             let blue_restore_tug = state.my_team == Team::Blue
                 && state.tick < 12000
                 && state.my_tugs.len() == 2
-                && state.my_station.resources > 75.0
-                && state.my_rockets.len() >= 4
-                && state.enemy_tugs.len() >= state.my_tugs.len();
+                && state.my_station.resources > 40.0
+                && state.my_rockets.len() >= 3;
             let late_econ_tug = state.tick >= 2200
                 && state.my_tugs.len() < 3
                 && state.my_station.resources > 110.0
