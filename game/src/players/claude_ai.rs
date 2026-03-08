@@ -1,7 +1,8 @@
-//! ClaudeAI v2 — aggressive economy + surgical strikes.
+//! ClaudeAI v8 — team-aware asymmetric strategy.
 //!
-//! v2 changes: tighter defense radius, hunt enemy tugs, bullet dodging,
-//! faster rocket production, station self-repair, wider shooting range.
+//! v8 changes over v7: red-side aggressive (narrow defense, low retreat, fast rockets),
+//! blue-side defensive (wide defense, high retreat). Tighter attack coordination,
+//! reduced tug count when red for faster rocket economy.
 
 use crate::api::*;
 use crate::config::GameConfig;
@@ -14,6 +15,7 @@ enum RocketRole {
     Attacking,
     HuntingTug(EntityId),
     Defending(EntityId),
+    EscortingTug(EntityId),
 }
 
 pub struct ClaudeAI {
@@ -59,12 +61,33 @@ impl PlayerAI for ClaudeAI {
             state.asteroids.iter().filter(|a| a.tier <= 2).collect();
 
         let early_game = state.tick < 600;
+        let is_red = state.my_team == Team::Red;
 
-        // Only defend against rockets very close to our station
+        // Team-aware defense radius: tight when red (attack focus), wide when blue
+        let defense_detect_radius = if is_red { 1800.0 } else { 2500.0 };
+        let defense_divert_radius = if is_red { 2000.0 } else { 3000.0 };
+
+        // Defend against rockets approaching our station
         let station_threats: Vec<&RocketView> = state
             .enemy_rockets
             .iter()
-            .filter(|er| state.distance(er.position, state.my_station.position) < 1500.0)
+            .filter(|er| state.distance(er.position, state.my_station.position) < defense_detect_radius)
+            .collect();
+
+        // Find enemy rockets threatening our tugs
+        let tug_threats: Vec<(&TugView, &RocketView)> = state
+            .my_tugs
+            .iter()
+            .filter_map(|tug| {
+                state.enemy_rockets.iter()
+                    .filter(|er| state.distance(er.position, tug.position) < 600.0)
+                    .min_by(|a, b| {
+                        let da = state.distance(a.position, tug.position);
+                        let db = state.distance(b.position, tug.position);
+                        da.partial_cmp(&db).unwrap()
+                    })
+                    .map(|er| (tug, er))
+            })
             .collect();
 
         // === CLEAN UP DEAD TARGETS ===
@@ -79,6 +102,7 @@ impl PlayerAI for ClaudeAI {
                 RocketRole::Attacking => state.enemy_station.health > 0.0,
                 RocketRole::HuntingTug(tid) => state.enemy_tugs.iter().any(|t| t.id == *tid),
                 RocketRole::Defending(eid) => state.enemy_rockets.iter().any(|r| r.id == *eid),
+                RocketRole::EscortingTug(tid) => state.my_tugs.iter().any(|t| t.id == *tid),
             }
         });
 
@@ -91,8 +115,18 @@ impl PlayerAI for ClaudeAI {
             0
         };
 
-        // Assign 1 rocket to hunt enemy tugs if they have any and we have spare rockets
-        let tug_hunter_needed = if !state.enemy_tugs.is_empty() && num_rockets >= 4 {
+        // Hunt enemy tugs — fewer when red to maximize attack pressure
+        let enemy_tug_count = state.enemy_tugs.len();
+        let tug_hunter_needed = if enemy_tug_count == 0 {
+            0
+        } else if is_red {
+            // Red: at most 1 tug hunter to keep attack force concentrated
+            if num_rockets >= 5 { 1 } else { 0 }
+        } else if num_rockets >= 6 {
+            enemy_tug_count.min(3)
+        } else if num_rockets >= 4 {
+            enemy_tug_count.min(2)
+        } else if num_rockets >= 2 {
             1
         } else {
             0
@@ -124,6 +158,8 @@ impl PlayerAI for ClaudeAI {
             None
         };
 
+        let beam_radius = state.my_station.beam_radius;
+
         for rocket in &state.my_rockets {
             let dist_to_station = state.distance(rocket.position, state.my_station.position);
 
@@ -136,10 +172,21 @@ impl PlayerAI for ClaudeAI {
                 continue;
             }
 
+            // Retreat to station for repair if damaged (team-aware threshold)
+            let hp_ratio = rocket.health / rocket.max_health;
+            let retreat_threshold = if is_red { 0.3 } else { 0.5 };
+            if hp_ratio < retreat_threshold && dist_to_station > beam_radius + 50.0 {
+                let to_station = dv2(state, rocket.position, state.my_station.position);
+                let target = Vec2::new(rocket.position[0], rocket.position[1])
+                    + to_station.normalize_or_zero() * (dist_to_station - beam_radius * 0.7);
+                cmds.rockets.insert(rocket.id, fly_toward(rocket, target));
+                continue;
+            }
+
             // Priority 1: Defend against threats very close to our station
             if !station_threats.is_empty() {
-                // Only divert rockets that are near our station themselves
-                if dist_to_station < 2500.0 {
+                // Divert rockets that are reasonably near our station
+                if dist_to_station < defense_divert_radius {
                     let closest_threat = station_threats
                         .iter()
                         .min_by(|a, b| {
@@ -160,7 +207,32 @@ impl PlayerAI for ClaudeAI {
                 }
             }
 
-            // Priority 2: Mine if needed
+            // Priority 2: Escort tugs under threat
+            if !tug_threats.is_empty() {
+                let already_escorting = self.rocket_roles.values()
+                    .filter(|r| matches!(r, RocketRole::EscortingTug(_)))
+                    .count();
+                let should_escort = match self.rocket_roles.get(&rocket.id) {
+                    Some(RocketRole::EscortingTug(_)) => true,
+                    _ => already_escorting < tug_threats.len() && already_escorting < 2,
+                };
+                if should_escort {
+                    let best_escort = tug_threats.iter()
+                        .min_by(|a, b| {
+                            let da = state.distance(rocket.position, a.1.position);
+                            let db = state.distance(rocket.position, b.1.position);
+                            da.partial_cmp(&db).unwrap()
+                        });
+                    if let Some((tug, threat)) = best_escort {
+                        self.rocket_roles.insert(rocket.id, RocketRole::EscortingTug(tug.id));
+                        let cmd = fly_and_shoot(state, rocket, threat.position, threat.velocity, 150.0);
+                        cmds.rockets.insert(rocket.id, cmd);
+                        continue;
+                    }
+                }
+            }
+
+            // Priority 3: Mine if needed
             let role = self.rocket_roles.get(&rocket.id);
             let should_mine = match role {
                 Some(RocketRole::Mining(_)) => true,
@@ -236,10 +308,12 @@ impl PlayerAI for ClaudeAI {
                 }
             }
 
-            // Priority 4: Attack — focus fire on enemies near our path, then station
+            // Priority 4: Attack — flanking approach, focus fire
             self.rocket_roles.insert(rocket.id, RocketRole::Attacking);
 
-            // Engage nearby enemy rockets opportunistically (wider range)
+            let dist_to_enemy_station = state.distance(rocket.position, state.enemy_station.position);
+
+            // Engage nearby enemy rockets opportunistically
             let nearby_enemy = state
                 .enemy_rockets
                 .iter()
@@ -252,27 +326,32 @@ impl PlayerAI for ClaudeAI {
 
             let cmd = if let Some(enemy) = nearby_enemy {
                 fly_and_shoot(state, rocket, enemy.position, enemy.velocity, 170.0)
-            } else if let Some(focus) = focus_target {
-                let dist_to_focus = state.distance(rocket.position, focus.position);
-                if dist_to_focus < 2500.0 {
-                    fly_and_shoot(state, rocket, focus.position, focus.velocity, 170.0)
+            } else if dist_to_enemy_station < 2500.0 {
+                // Close to enemy station — attack it or focus fire defenders
+                if let Some(focus) = focus_target {
+                    let dist_to_focus = state.distance(rocket.position, focus.position);
+                    if dist_to_focus < 2500.0 {
+                        fly_and_shoot(state, rocket, focus.position, focus.velocity, 170.0)
+                    } else {
+                        fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 250.0)
+                    }
                 } else {
-                    fly_and_shoot(
-                        state,
-                        rocket,
-                        state.enemy_station.position,
-                        [0.0, 0.0],
-                        250.0,
-                    )
+                    fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 250.0)
                 }
+            } else if is_red {
+                // Red: concentrated rush — all rockets converge on station
+                fly_and_shoot(state, rocket, state.enemy_station.position, [0.0, 0.0], 300.0)
             } else {
-                fly_and_shoot(
-                    state,
-                    rocket,
-                    state.enemy_station.position,
-                    [0.0, 0.0],
-                    250.0,
-                )
+                // Blue: flanking approach — each rocket approaches from a different angle
+                let base_delta = dv2(state, rocket.position, state.enemy_station.position);
+                let base_angle = base_delta.y.atan2(base_delta.x);
+                let flank_offset = (rocket.id.0 % 7) as f32 * std::f32::consts::TAU / 7.0;
+                let approach_angle = base_angle + (flank_offset - std::f32::consts::PI) * 0.3;
+                let approach_pos = [
+                    state.enemy_station.position[0] - approach_angle.cos() * 800.0,
+                    state.enemy_station.position[1] - approach_angle.sin() * 800.0,
+                ];
+                fly_and_shoot(state, rocket, approach_pos, [0.0, 0.0], 250.0)
             };
             cmds.rockets.insert(rocket.id, cmd);
         }
@@ -294,8 +373,6 @@ impl PlayerAI for ClaudeAI {
         for tid in self.tug_targets.values() {
             claimed.push(*tid);
         }
-
-        let beam_radius = state.my_station.beam_radius;
 
         for tug in &state.my_tugs {
             let tug_vel = tug.velocity_vec2();
@@ -327,14 +404,24 @@ impl PlayerAI for ClaudeAI {
                     cmd.beam_target = tug.carrying;
                 }
             } else {
-                // Avoid enemy rockets — flee if one is within 500 units
-                let danger = state.enemy_rockets.iter().any(|er| {
-                    state.distance(tug.position, er.position) < 500.0
-                });
+                // Avoid enemy rockets — flee if one is within 800 units
+                let nearest_enemy_rocket = state.enemy_rockets.iter()
+                    .map(|er| (er, state.distance(tug.position, er.position)))
+                    .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+                let danger = nearest_enemy_rocket
+                    .map(|(_, d)| d < 800.0)
+                    .unwrap_or(false);
                 if danger {
-                    // Run to our station
-                    let to_station = dv2(state, tug.position, state.my_station.position);
-                    let desired_vel = to_station.normalize_or_zero() * 100.0;
+                    let (enemy, enemy_dist) = nearest_enemy_rocket.unwrap();
+                    // Evasive: run away from enemy rocket, perpendicular if close
+                    let away_from_enemy = -dv2(state, tug.position, enemy.position).normalize_or_zero();
+                    let to_station = dv2(state, tug.position, state.my_station.position).normalize_or_zero();
+                    // Blend: run to station but dodge perpendicular to enemy approach
+                    let urgency = (1.0 - enemy_dist / 800.0).clamp(0.0, 1.0);
+                    let perp = Vec2::new(-away_from_enemy.y, away_from_enemy.x);
+                    let dodge_sign = if perp.dot(to_station) > 0.0 { 1.0 } else { -1.0 };
+                    let flee_dir = (to_station * (1.0 - urgency * 0.5) + perp * dodge_sign * urgency * 0.5).normalize_or_zero();
+                    let desired_vel = flee_dir * 120.0;
                     let dv = desired_vel - tug_vel;
                     cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
                     cmds.tugs.insert(tug.id, cmd);
@@ -355,10 +442,25 @@ impl PlayerAI for ClaudeAI {
                                     > beam_radius
                         })
                         .min_by(|a, b| {
-                            let sa = state.distance(tug.position, a.position)
-                                + state.distance(a.position, state.my_station.position) * 0.6;
-                            let sb = state.distance(tug.position, b.position)
-                                + state.distance(b.position, state.my_station.position) * 0.6;
+                            let pickup_a = state.distance(tug.position, a.position);
+                            let return_a = state.distance(a.position, state.my_station.position);
+                            let drift_a = {
+                                let to_sta = dv2(state, a.position, state.my_station.position);
+                                let av = Vec2::new(a.velocity[0], a.velocity[1]);
+                                let toward = to_sta.normalize_or_zero();
+                                -av.dot(toward).max(0.0) * 2.0
+                            };
+                            let sa = pickup_a + return_a * 0.6 + drift_a;
+
+                            let pickup_b = state.distance(tug.position, b.position);
+                            let return_b = state.distance(b.position, state.my_station.position);
+                            let drift_b = {
+                                let to_sta = dv2(state, b.position, state.my_station.position);
+                                let bv = Vec2::new(b.velocity[0], b.velocity[1]);
+                                let toward = to_sta.normalize_or_zero();
+                                -bv.dot(toward).max(0.0) * 2.0
+                            };
+                            let sb = pickup_b + return_b * 0.6 + drift_b;
                             sa.partial_cmp(&sb).unwrap()
                         });
                     if let Some(t) = best {
@@ -431,6 +533,41 @@ impl PlayerAI for ClaudeAI {
             });
         }
 
+        // Use beams to repel incoming enemy rockets
+        if beam_cmds.len() < 5 {
+            let mut incoming_rockets: Vec<(&RocketView, f32)> = state
+                .enemy_rockets
+                .iter()
+                .filter_map(|r| {
+                    let to_rocket = dv2(state, state.my_station.position, r.position);
+                    let dist = to_rocket.length();
+                    if dist > beam_radius {
+                        return None;
+                    }
+                    // Only repel rockets heading toward us
+                    let rv = r.velocity_vec2();
+                    let toward = -to_rocket.normalize_or_zero();
+                    if rv.dot(toward) < 30.0 {
+                        return None;
+                    }
+                    Some((r, dist))
+                })
+                .collect();
+            incoming_rockets.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+
+            for (rocket, _) in &incoming_rockets {
+                if beam_cmds.len() >= 5 {
+                    break;
+                }
+                // Push rocket away from station
+                let away = dv2(state, state.my_station.position, rocket.position).normalize_or_zero();
+                beam_cmds.push(BeamCommand {
+                    target: rocket.id,
+                    force_direction: [away.x, away.y],
+                });
+            }
+        }
+
         // Use remaining beams to pull in small asteroids
         if beam_cmds.len() < 5 {
             let mut pullable: Vec<&AsteroidView> = state
@@ -484,15 +621,16 @@ impl PlayerAI for ClaudeAI {
             cmds.station.repair_target = Some(id);
         }
 
-        // Build order: 2 tugs early for economy, then pure rockets
+        // Build order: 3 tugs early for strong economy, then pure rockets
         let minerals = state.my_station.resources;
         if state.my_station.build_progress.is_none() && state.my_station.build_queue_length == 0 {
+            let max_tugs_early = if is_red { 2 } else { 3 };
             let want_tug = if num_tugs == 0 {
                 true
-            } else if self.total_builds < 4 {
-                num_tugs < 2
+            } else if self.total_builds < 6 {
+                num_tugs < max_tugs_early
             } else {
-                num_tugs < 1 // Only replace if we have zero
+                num_tugs < 2 // Always maintain at least 2 tugs for economy
             };
 
             let unit = if want_tug {
@@ -581,31 +719,30 @@ fn fly_and_shoot(
     }
 
     // Bullet dodging — check if any enemy bullet is heading toward us
+    let mut dodge_impulse = Vec2::ZERO;
     for bullet in &state.bullets {
         if bullet.team == state.my_team {
             continue;
         }
         let to_bullet = dv2(state, rocket.position, bullet.position);
         let b_dist = to_bullet.length();
-        if b_dist > 300.0 {
+        if b_dist > 400.0 || b_dist < 5.0 {
             continue;
         }
         let bv = bullet.velocity_vec2();
-        // Is bullet heading toward us?
         let toward_us = -to_bullet.normalize_or_zero();
-        if bv.dot(toward_us) > 200.0 {
-            // Check if we're in the bullet's path
+        if bv.dot(toward_us) > 150.0 {
             let bullet_dir = bv.normalize_or_zero();
             let perp_dist = to_bullet.dot(Vec2::new(-bullet_dir.y, bullet_dir.x)).abs();
-            if perp_dist < 30.0 {
-                // Dodge perpendicular to bullet velocity
+            if perp_dist < 45.0 {
                 let dodge = Vec2::new(-bullet_dir.y, bullet_dir.x);
                 let dodge_sign = if to_bullet.dot(dodge) > 0.0 { -1.0 } else { 1.0 };
-                desired_vel += dodge * dodge_sign * 150.0;
-                break; // Only dodge most threatening bullet
+                let urgency = 1.0 - (b_dist / 400.0);
+                dodge_impulse += dodge * dodge_sign * 200.0 * urgency;
             }
         }
     }
+    desired_vel += dodge_impulse;
 
     // Asteroid avoidance
     if let Some(avoidance) = asteroid_avoidance(state, rocket) {
