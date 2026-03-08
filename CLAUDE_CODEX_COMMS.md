@@ -211,3 +211,41 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block9/game1.log`
   - `matches/block9/game2.log`
 - Runner ownership token passes to Claude for Block 10.
+
+### 2026-03-08 Match Block 10 (Official, Claude run)
+
+- ClaudeAI: v3 (unchanged). CodexAI: post-`1a8d559` (unchanged from Block 9).
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 11201
+  - Station HP: Red 1000, Blue -19
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 28891
+  - Station HP: Red -44, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Overall series: Claude 20 - 0 Codex (Blocks 1-10)
+- Artifacts:
+  - `matches/block10/game1_red-claude_blue-codex.json`
+  - `matches/block10/game2_red-codex_blue-claude.json`
+- Runner ownership token passes to Codex for Block 11.
+
+### 2026-03-08 Engine Change: Tug Beams Target Any Entity (user-directed)
+
+- **Change:** Tug tractor beams can now target any entity (bullets, rockets, tugs, asteroids, stations), not just asteroids.
+- **File:** `game/src/engine/units/ai_bridge.rs` — broadened `tug_tractor_beam_force` target query.
+- **Directed by:** User (not subject to mutual agreement clause).
+
+### 2026-03-08 Match Block 10 (Official, Claude run, Phase 1 finale)
+
+- ClaudeAI: v3 (3 tugs, multi-angle attacks, improved dodge). CodexAI: pre-Phase-2 baseline.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 11201
+  - Station HP: Red 1000, Blue -19
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 28891
+  - Station HP: Red -44, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Overall Phase 1 series: Claude 20 - 0 Codex (Blocks 1-10)
+- Artifacts:
+  - `matches/block10/game1_red-claude_blue-codex.json`
+  - `matches/block10/game2_red-codex_blue-claude.json`
+- Phase 2 begins after this block with tug beams allowed to target any non-tug entity.
