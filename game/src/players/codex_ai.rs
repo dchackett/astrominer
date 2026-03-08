@@ -80,6 +80,12 @@ impl PlayerAI for CodexAI {
                 .my_rockets
                 .len()
                 .min(if state.my_tugs.len() >= 2 { 2 } else { 1 })
+        } else if state.my_team == Team::Blue
+            && state.my_station.resources < 80.0
+            && state.my_tugs.len() >= 3
+            && state.my_rockets.len() >= 4
+        {
+            2
         } else if state.my_station.resources < 90.0 && state.my_tugs.len() >= 2 {
             state.my_rockets.len().min(1)
         } else {
@@ -233,24 +239,10 @@ impl PlayerAI for CodexAI {
             let tug_vel = tug.velocity_vec2();
             let tug_health_ratio = tug.health / tug.max_health;
             let low_tug_count = state.my_tugs.len() <= 2;
-            let nearby_enemy_rockets: Vec<&RocketView> = state
+            let nearby_enemy_rocket = state
                 .enemy_rockets
                 .iter()
-                .filter(|r| state.distance(tug.position, r.position) < 900.0)
-                .collect();
-            let nearby_enemy_rocket = !nearby_enemy_rockets.is_empty();
-            let immediate_tug_threat = nearby_enemy_rockets.iter().any(|r| {
-                state.distance(tug.position, r.position) < 260.0
-                    || state.distance(r.position, state.my_station.position) < beam_radius + 180.0
-            });
-            let severe_tug_threat = state.my_team == Team::Blue
-                && (nearby_enemy_rockets.len() >= 2 || immediate_tug_threat);
-            let closest_enemy_rocket = nearby_enemy_rockets.iter().copied().min_by(|a, b| {
-                state
-                    .distance(tug.position, a.position)
-                    .partial_cmp(&state.distance(tug.position, b.position))
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
+                .any(|r| state.distance(tug.position, r.position) < 900.0);
             let should_repair_tug = tug_health_ratio < 0.45
                 || (tug_health_ratio < 0.7 && (low_tug_count || nearby_enemy_rocket));
             let is_defender = defender_tug_ids.contains(&tug.id);
@@ -278,24 +270,6 @@ impl PlayerAI for CodexAI {
                         let dv = desired_v - tug_vel;
                         cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
                         cmd.beam_target = Some(carried_id);
-                    }
-                    cmds.tugs.insert(tug.id, cmd);
-                    continue;
-                }
-
-                if severe_tug_threat {
-                    let to_station = dv2(state, tug.position, state.my_station.position);
-                    let dist = to_station.length();
-                    let dir = to_station.normalize_or_zero();
-                    let desired_v = dir * if dist > beam_radius { 175.0 } else { 125.0 };
-                    let dv = desired_v - tug_vel;
-                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
-                    if let Some(enemy) = closest_enemy_rocket
-                        .filter(|r| state.distance(tug.position, r.position) < 170.0)
-                    {
-                        cmd.beam_target = Some(enemy.id);
-                    } else {
-                        cmd.beam_target = None;
                     }
                     cmds.tugs.insert(tug.id, cmd);
                     continue;
@@ -359,22 +333,6 @@ impl PlayerAI for CodexAI {
                 }
 
                 cmd.beam_target = None;
-                cmds.tugs.insert(tug.id, cmd);
-                continue;
-            }
-
-            if severe_tug_threat {
-                let to_station = dv2(state, tug.position, state.my_station.position);
-                let dist = to_station.length();
-                let dir = to_station.normalize_or_zero();
-                let desired_v = dir * if dist > beam_radius { 180.0 } else { 120.0 };
-                let dv = desired_v - tug_vel;
-                cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
-                if let Some(enemy) = closest_enemy_rocket
-                    .filter(|r| state.distance(tug.position, r.position) < 165.0)
-                {
-                    cmd.beam_target = Some(enemy.id);
-                }
                 cmds.tugs.insert(tug.id, cmd);
                 continue;
             }
@@ -477,10 +435,22 @@ impl PlayerAI for CodexAI {
                                     > beam_radius
                         })
                         .min_by(|a, b| {
+                            let drift_a = {
+                                let to_station = dv2(state, a.position, state.my_station.position)
+                                    .normalize_or_zero();
+                                -a.velocity_vec2().dot(to_station).max(0.0) * 2.0
+                            };
+                            let drift_b = {
+                                let to_station = dv2(state, b.position, state.my_station.position)
+                                    .normalize_or_zero();
+                                -b.velocity_vec2().dot(to_station).max(0.0) * 2.0
+                            };
                             let sa = state.distance(tug.position, a.position)
-                                + state.distance(a.position, state.my_station.position) * 0.6;
+                                + state.distance(a.position, state.my_station.position) * 0.6
+                                + drift_a;
                             let sb = state.distance(tug.position, b.position)
-                                + state.distance(b.position, state.my_station.position) * 0.6;
+                                + state.distance(b.position, state.my_station.position) * 0.6
+                                + drift_b;
                             sa.partial_cmp(&sb).unwrap_or(std::cmp::Ordering::Equal)
                         });
                     if let Some(ast) = best {
