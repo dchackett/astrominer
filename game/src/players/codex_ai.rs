@@ -24,16 +24,36 @@ impl PlayerAI for CodexAI {
         let beam_radius = state.my_station.beam_radius;
         let large_asteroids: Vec<&AsteroidView> =
             state.asteroids.iter().filter(|a| a.tier >= 3).collect();
+        let station_defense_radius = if state.my_team == Team::Red && state.tick < 12000 {
+            4300.0
+        } else {
+            3600.0
+        };
         let station_threat = state
             .enemy_rockets
             .iter()
-            .filter(|r| state.distance(r.position, state.my_station.position) < 3600.0)
+            .filter(|r| {
+                state.distance(r.position, state.my_station.position) < station_defense_radius
+            })
             .min_by(|a, b| {
                 state
                     .distance(a.position, state.my_station.position)
                     .partial_cmp(&state.distance(b.position, state.my_station.position))
                     .unwrap_or(std::cmp::Ordering::Equal)
             });
+        let mut station_threats: Vec<&RocketView> = state
+            .enemy_rockets
+            .iter()
+            .filter(|r| {
+                state.distance(r.position, state.my_station.position) < station_defense_radius
+            })
+            .collect();
+        station_threats.sort_by(|a, b| {
+            state
+                .distance(a.position, state.my_station.position)
+                .partial_cmp(&state.distance(b.position, state.my_station.position))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         let severe_station_threat = state
             .enemy_rockets
             .iter()
@@ -180,31 +200,41 @@ impl PlayerAI for CodexAI {
                 None
             };
 
-            let (target_pos, target_vel, standoff) =
-                if let Some(t) = station_threat.filter(|_| defend_station) {
-                    (t.position, t.velocity, 180.0)
-                } else if let Some(ast) = mining_target {
-                    (ast.position, ast.velocity, ast.radius + 220.0)
-                } else if let Some(tug) = tug_target {
-                    (tug.position, tug.velocity, 170.0)
-                } else if let Some(t) =
-                    nearest_threat.filter(|t| state.distance(rocket.position, t.position) < 2200.0)
-                {
-                    (t.position, t.velocity, 220.0)
+            let assigned_station_threat = if defend_station && !station_threats.is_empty() {
+                if state.my_team == Team::Red {
+                    station_threats
+                        .get(rocket_idx.min(station_threats.len() - 1))
+                        .copied()
                 } else {
-                    let base = dv2(state, rocket.position, state.enemy_station.position);
-                    let perp = Vec2::new(-base.y, base.x).normalize_or_zero();
-                    let lane = (rocket.id.0 % 5) as f32 - 2.0;
-                    let offset = perp * lane * 140.0;
-                    (
-                        [
-                            state.enemy_station.position[0] + offset.x,
-                            state.enemy_station.position[1] + offset.y,
-                        ],
-                        [0.0, 0.0],
-                        390.0,
-                    )
-                };
+                    station_threat
+                }
+            } else {
+                None
+            };
+            let (target_pos, target_vel, standoff) = if let Some(t) = assigned_station_threat {
+                (t.position, t.velocity, 180.0)
+            } else if let Some(ast) = mining_target {
+                (ast.position, ast.velocity, ast.radius + 220.0)
+            } else if let Some(tug) = tug_target {
+                (tug.position, tug.velocity, 170.0)
+            } else if let Some(t) =
+                nearest_threat.filter(|t| state.distance(rocket.position, t.position) < 2200.0)
+            {
+                (t.position, t.velocity, 220.0)
+            } else {
+                let base = dv2(state, rocket.position, state.enemy_station.position);
+                let perp = Vec2::new(-base.y, base.x).normalize_or_zero();
+                let lane = (rocket.id.0 % 5) as f32 - 2.0;
+                let offset = perp * lane * 140.0;
+                (
+                    [
+                        state.enemy_station.position[0] + offset.x,
+                        state.enemy_station.position[1] + offset.y,
+                    ],
+                    [0.0, 0.0],
+                    390.0,
+                )
+            };
 
             let cmd = fly_and_shoot(state, rocket, target_pos, target_vel, standoff);
             cmds.rockets.insert(rocket.id, cmd);
