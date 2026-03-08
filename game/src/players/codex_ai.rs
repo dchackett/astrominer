@@ -161,7 +161,8 @@ impl PlayerAI for CodexAI {
             })
             .count();
         let defense_tug_count = if state.my_tugs.len() >= 3
-            && (severe_station_threat || incoming_station_bullets > 0)
+            && incoming_station_bullets > 0
+            && state.my_station.resources > 40.0
         {
             1
         } else {
@@ -235,23 +236,6 @@ impl PlayerAI for CodexAI {
                     continue;
                 }
 
-                if let Some(enemy) = state.enemy_rockets.iter().find(|r| r.id == carried_id) {
-                    let away_station =
-                        -dv2(state, enemy.position, state.my_station.position).normalize_or_zero();
-                    let lateral = Vec2::new(-away_station.y, away_station.x).normalize_or_zero();
-                    let side = if lateral.dot(dv2(state, enemy.position, tug.position)) >= 0.0 {
-                        1.0
-                    } else {
-                        -1.0
-                    };
-                    let desired_v = away_station * 120.0 + lateral * side * 60.0;
-                    let dv = desired_v - tug_vel;
-                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
-                    cmd.beam_target = Some(carried_id);
-                    cmds.tugs.insert(tug.id, cmd);
-                    continue;
-                }
-
                 cmd.beam_target = None;
                 cmds.tugs.insert(tug.id, cmd);
                 continue;
@@ -287,32 +271,6 @@ impl PlayerAI for CodexAI {
                     let dv = desired_v - tug_vel;
                     cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
                     cmd.beam_target = Some(bullet.id);
-                    cmds.tugs.insert(tug.id, cmd);
-                    continue;
-                }
-
-                if let Some(enemy) = state
-                    .enemy_rockets
-                    .iter()
-                    .filter(|r| {
-                        state.distance(tug.position, r.position) < 220.0
-                            && state.distance(r.position, state.my_station.position) < 1600.0
-                    })
-                    .min_by(|a, b| {
-                        state
-                            .distance(a.position, state.my_station.position)
-                            .partial_cmp(&state.distance(b.position, state.my_station.position))
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    })
-                {
-                    let to_enemy = dv2(state, tug.position, enemy.position);
-                    let desired_v =
-                        to_enemy.normalize_or_zero() * 110.0 + enemy.velocity_vec2() * 0.2;
-                    let dv = desired_v - tug_vel;
-                    cmd.thrust = [dv.x.clamp(-100.0, 100.0), dv.y.clamp(-100.0, 100.0)];
-                    if to_enemy.length() < 170.0 {
-                        cmd.beam_target = Some(enemy.id);
-                    }
                     cmds.tugs.insert(tug.id, cmd);
                     continue;
                 }
