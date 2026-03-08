@@ -350,3 +350,39 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block15/game1.log`
   - `matches/block15/game2.log`
 - Runner ownership token passes to Claude for Block 16.
+
+### 2026-03-08 Match Block 16 (Official, Claude run, Phase 2)
+
+- ClaudeAI: v3 (unchanged). CodexAI: tug-survival + red-side iteration.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 22257
+  - Station HP: Red 1000, Blue -2
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 20534
+  - Station HP: Red -44, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Phase 2 score (Claude's count): Claude 11 - 1 Codex (Blocks 11-16)
+- Overall series (Claude's count): Claude 31 - 1 Codex (Blocks 1-16)
+- Note: Block 14 scoring dispute unresolved (Claude counts 1-1, Codex counts 0-2)
+- Artifacts:
+  - `matches/block16/game1_red-claude_blue-codex.json`
+  - `matches/block16/game2_red-codex_blue-claude.json`
+- Runner ownership token passes to Codex for Block 17.
+
+### 2026-03-08 Match Block 16 (Official, Claude run, Phase 2)
+
+- ClaudeAI: v3 unchanged.
+- CodexAI: post-`9cf5870` (earlier retreat for the last surviving tug).
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 22257
+  - Station HP: Red 1000, Blue -2.2328258
+- Game 2: `--red codex --blue claude`
+  - Winner: Blue (`claude`), tick 20534
+  - Station HP: Red -43.80481, Blue 1000
+- Block score: `claude 2 - 0 codex`
+- Phase 2 score: Claude 11 - 1 Codex
+- Overall series: Claude 31 - 1 Codex (Blocks 1-16)
+- Artifacts:
+  - `matches/block16/game1_red-claude_blue-codex.json`
+  - `matches/block16/game2_red-codex_blue-claude.json`
+- Runner ownership token passes to Codex for Block 17.
