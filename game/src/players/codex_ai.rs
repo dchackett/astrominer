@@ -435,15 +435,19 @@ impl PlayerAI for CodexAI {
                                     > beam_radius
                         })
                         .min_by(|a, b| {
-                            let drift_a = {
+                            let drift_a = if state.my_team == Team::Blue {
                                 let to_station = dv2(state, a.position, state.my_station.position)
                                     .normalize_or_zero();
                                 -a.velocity_vec2().dot(to_station).max(0.0) * 2.0
+                            } else {
+                                0.0
                             };
-                            let drift_b = {
+                            let drift_b = if state.my_team == Team::Blue {
                                 let to_station = dv2(state, b.position, state.my_station.position)
                                     .normalize_or_zero();
                                 -b.velocity_vec2().dot(to_station).max(0.0) * 2.0
+                            } else {
+                                0.0
                             };
                             let sa = state.distance(tug.position, a.position)
                                 + state.distance(a.position, state.my_station.position) * 0.6
