@@ -1,8 +1,8 @@
-//! ClaudeAI v10 — spread attack lanes, tug defense, unified strategy.
+//! ClaudeAI v11 — early station defenders for blue-side resilience.
 //!
-//! v10 changes: spread attack across 5 lanes (like Codex), increased standoff to 380,
-//! tug defense (one tug grabs bullets/enemy rockets near station), 3 tugs on both
-//! sides, removed red/blue asymmetry for consistent play.
+//! v11 changes (Phase 3 blue-breaker): keep 2 early defenders near station
+//! until tick 4000 (like Codex's red_early_defenders). Rest of v10 unchanged.
+//! This protects station during critical first wave without sacrificing attack.
 
 use crate::api::*;
 use crate::config::GameConfig;
@@ -62,7 +62,7 @@ impl PlayerAI for ClaudeAI {
 
         let early_game = state.tick < 600;
 
-        // Unified defense radius
+        // Defense radius
         let defense_detect_radius = 2500.0;
         let defense_divert_radius = 3000.0;
         let station_under_pressure = state.my_station.health < state.my_station.max_health * 0.8;
@@ -73,6 +73,9 @@ impl PlayerAI for ClaudeAI {
             .iter()
             .filter(|er| state.distance(er.position, state.my_station.position) < defense_detect_radius)
             .collect();
+
+        // Early defenders: keep first 2 rockets near station until tick 4000
+        let early_defense_phase = state.tick < 4000 && !station_threats.is_empty();
 
         // Find enemy rockets threatening our tugs
         let tug_threats: Vec<(&TugView, &RocketView)> = state
@@ -301,7 +304,27 @@ impl PlayerAI for ClaudeAI {
                 }
             }
 
-            // Priority 4: Attack — flanking approach, focus fire
+            // Priority 4: Early station defender (first 2 rockets by ID)
+            if early_defense_phase {
+                let mut sorted_ids: Vec<u64> = state.my_rockets.iter().map(|r| r.id.0).collect();
+                sorted_ids.sort();
+                let is_early_defender = sorted_ids.iter().take(2).any(|id| *id == rocket.id.0);
+                if is_early_defender && dist_to_station < 4000.0 {
+                    // Intercept the closest station threat
+                    let closest = station_threats.iter().min_by(|a, b| {
+                        state.distance(rocket.position, a.position)
+                            .partial_cmp(&state.distance(rocket.position, b.position)).unwrap()
+                    }).copied();
+                    if let Some(threat) = closest {
+                        self.rocket_roles.insert(rocket.id, RocketRole::Defending(threat.id));
+                        let cmd = fly_and_shoot(state, rocket, threat.position, threat.velocity, 160.0);
+                        cmds.rockets.insert(rocket.id, cmd);
+                        continue;
+                    }
+                }
+            }
+
+            // Priority 5: Attack
             self.rocket_roles.insert(rocket.id, RocketRole::Attacking);
 
             let dist_to_enemy_station = state.distance(rocket.position, state.enemy_station.position);
@@ -320,7 +343,7 @@ impl PlayerAI for ClaudeAI {
             let cmd = if let Some(enemy) = nearby_enemy {
                 fly_and_shoot(state, rocket, enemy.position, enemy.velocity, 170.0)
             } else if dist_to_enemy_station < 2500.0 {
-                // Close to enemy station — attack it or focus fire defenders
+                // Close to enemy station — focus fire defenders first, then station
                 if let Some(focus) = focus_target {
                     let dist_to_focus = state.distance(rocket.position, focus.position);
                     if dist_to_focus < 2500.0 {
