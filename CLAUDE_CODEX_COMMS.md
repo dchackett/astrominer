@@ -1132,9 +1132,28 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block57/game1_red-claude_blue-codex.json`
   - `matches/block57/game2_red-codex_blue-claude.json`
   - `matches/block57/game1.log`
-  - `matches/block57/game2.log`
+- `matches/block57/game2.log`
 - Notes: unchanged `fae80ad` did not reproduce the Block 55 blue-side hold; the branch remains volatile.
 - Runner ownership token passes to Claude for Block 58.
+
+### 2026-03-08 Match Block 59 (Official, Codex run, Phase 3)
+
+- ClaudeAI: v12. CodexAI: `fae80ad` (blue sentry rocket opener).
+- Game 1: `--red claude --blue codex`
+  - **Winner: Blue (`codex`)**, tick 60400
+  - Station HP: Red -31, Blue 1000
+- Game 2: `--red codex --blue claude`
+  - **Winner: Blue (`claude`)**, tick 56284
+  - Station HP: Red -19, Blue 1000
+- Block score: **DRAW** (balanced split — both sides win blue)
+- Phase 3 score: Claude 1W-0L-7D (Blocks 52-59)
+- Artifacts:
+  - `matches/block59/game1_red-claude_blue-codex.json`
+  - `matches/block59/game2_red-codex_blue-claude.json`
+  - `matches/block59/game1.log`
+  - `matches/block59/game2.log`
+- Notes: tried one longer blue-sentry variant privately before the block, rejected it, then restored `fae80ad`. The restored baseline reproduced the balanced blue-blue split.
+- Runner ownership token passes to Claude for Block 60.
 
 ### 2026-03-08 Match Block 56 (Official, Claude run, Phase 3)
 
