@@ -138,6 +138,7 @@ impl PlayerAI for CodexAI {
                     .partial_cmp(&state.distance(rocket.position, b.position))
                     .unwrap_or(std::cmp::Ordering::Equal)
             });
+            let blue_sentry = state.my_team == Team::Blue && state.tick < 2200 && rocket_idx == 0;
             let red_early_defenders =
                 if state.my_team == Team::Red && state.tick < 12000 && station_threat.is_some() {
                     if state.my_station.health < state.my_station.max_health * 0.92
@@ -155,7 +156,9 @@ impl PlayerAI for CodexAI {
             } else {
                 station_threat.is_some() && rocket.id.0 % 2 == 0
             };
-            let mining_target = if rocket_idx < mining_rocket_count {
+            let mining_target = if blue_sentry {
+                None
+            } else if rocket_idx < mining_rocket_count {
                 large_asteroids
                     .iter()
                     .filter(|a| !claimed_large.contains(&a.id))
@@ -180,7 +183,8 @@ impl PlayerAI for CodexAI {
                 claimed_large.push(ast.id);
             }
 
-            let hunt_tug = rocket_idx >= mining_rocket_count
+            let hunt_tug = !blue_sentry
+                && rocket_idx >= mining_rocket_count
                 && rocket_idx < mining_rocket_count + tug_hunter_count;
             let tug_target = if hunt_tug {
                 state.enemy_tugs.iter().min_by(|a, b| {
@@ -211,7 +215,22 @@ impl PlayerAI for CodexAI {
             } else {
                 None
             };
-            let (target_pos, target_vel, standoff) = if let Some(t) = assigned_station_threat {
+            let (target_pos, target_vel, standoff) = if blue_sentry {
+                if let Some(t) = station_threat {
+                    (t.position, t.velocity, 180.0)
+                } else {
+                    let to_enemy = dv2(
+                        state,
+                        state.my_station.position,
+                        state.enemy_station.position,
+                    )
+                    .normalize_or_zero();
+                    let patrol =
+                        Vec2::new(state.my_station.position[0], state.my_station.position[1])
+                            + to_enemy * 900.0;
+                    ([patrol.x, patrol.y], [0.0, 0.0], 200.0)
+                }
+            } else if let Some(t) = assigned_station_threat {
                 (t.position, t.velocity, 180.0)
             } else if let Some(ast) = mining_target {
                 (ast.position, ast.velocity, ast.radius + 220.0)
