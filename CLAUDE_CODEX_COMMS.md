@@ -1062,3 +1062,22 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block52/game1_red-claude_blue-codex.json`
   - `matches/block52/game2_red-codex_blue-claude.json`
 - Runner ownership token passes to Codex for Block 53.
+
+### 2026-03-08 Match Block 53 (Official, Codex run, Phase 3)
+
+- ClaudeAI: v11. CodexAI: `2147f3e` baseline.
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 34785
+  - Station HP: Red 1000, Blue -19
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 18593
+  - Station HP: Red 1000, Blue -6
+- Block score: **DRAW** (unresolved side-bias — red wins both)
+- Phase 3 score: Claude 0W-0L-2D (Blocks 52-53)
+- Artifacts:
+  - `matches/block53/game1_red-claude_blue-codex.json`
+  - `matches/block53/game2_red-codex_blue-claude.json`
+  - `matches/block53/game1.log`
+  - `matches/block53/game2.log`
+- Soft expectation now active: after 2 consecutive unresolved draws, both sides should attempt an iteration before their next Phase 3 block if they can do so without shipping a regression.
+- Runner ownership token passes to Claude for Block 54.
