@@ -1,8 +1,8 @@
-//! ClaudeAI v11 — early station defenders for blue-side resilience.
+//! ClaudeAI v12 — unconditional early sentries + perpendicular beam defense.
 //!
-//! v11 changes (Phase 3 blue-breaker): keep 2 early defenders near station
-//! until tick 4000 (like Codex's red_early_defenders). Rest of v10 unchanged.
-//! This protects station during critical first wave without sacrificing attack.
+//! v12 changes: first 2 rockets unconditionally patrol near station until tick
+//! 2500 (guaranteed defense for first wave). Station beams use perpendicular
+//! force on enemy rockets (disrupts aim better than push-back).
 
 use crate::api::*;
 use crate::config::GameConfig;
@@ -74,8 +74,8 @@ impl PlayerAI for ClaudeAI {
             .filter(|er| state.distance(er.position, state.my_station.position) < defense_detect_radius)
             .collect();
 
-        // Early defenders: keep first 2 rockets near station until tick 4000
-        let early_defense_phase = state.tick < 4000 && !station_threats.is_empty();
+        // Unconditional early sentry: 1 rocket stays near station until tick 2000
+        let sentry_phase = state.tick < 2000;
 
         // Find enemy rockets threatening our tugs
         let tug_threats: Vec<(&TugView, &RocketView)> = state
@@ -304,23 +304,34 @@ impl PlayerAI for ClaudeAI {
                 }
             }
 
-            // Priority 4: Early station defender (first 2 rockets by ID)
-            if early_defense_phase {
+            // Priority 4: Unconditional early sentries (first 2 rockets by ID)
+            if sentry_phase {
                 let mut sorted_ids: Vec<u64> = state.my_rockets.iter().map(|r| r.id.0).collect();
                 sorted_ids.sort();
-                let is_early_defender = sorted_ids.iter().take(2).any(|id| *id == rocket.id.0);
-                if is_early_defender && dist_to_station < 4000.0 {
-                    // Intercept the closest station threat
-                    let closest = station_threats.iter().min_by(|a, b| {
-                        state.distance(rocket.position, a.position)
-                            .partial_cmp(&state.distance(rocket.position, b.position)).unwrap()
-                    }).copied();
-                    if let Some(threat) = closest {
+                let is_sentry = sorted_ids.iter().take(1).any(|id| *id == rocket.id.0);
+                if is_sentry {
+                    // Attack any enemy near station, otherwise patrol
+                    let nearby_threat = state.enemy_rockets.iter()
+                        .filter(|er| state.distance(er.position, state.my_station.position) < 3500.0)
+                        .min_by(|a, b| {
+                            state.distance(rocket.position, a.position)
+                                .partial_cmp(&state.distance(rocket.position, b.position)).unwrap()
+                        });
+                    if let Some(threat) = nearby_threat {
                         self.rocket_roles.insert(rocket.id, RocketRole::Defending(threat.id));
                         let cmd = fly_and_shoot(state, rocket, threat.position, threat.velocity, 160.0);
                         cmds.rockets.insert(rocket.id, cmd);
-                        continue;
+                    } else {
+                        // Patrol near station — orbit at ~1000 units toward enemy side
+                        let toward_enemy = dv2(state, state.my_station.position, state.enemy_station.position).normalize_or_zero();
+                        let perp = Vec2::new(-toward_enemy.y, toward_enemy.x);
+                        let side = if rocket.id.0 % 2 == 0 { 1.0 } else { -1.0 };
+                        let patrol_pos = Vec2::new(state.my_station.position[0], state.my_station.position[1])
+                            + toward_enemy * 1000.0 + perp * side * 500.0;
+                        let cmd = fly_and_shoot(state, rocket, [patrol_pos.x, patrol_pos.y], [0.0, 0.0], 200.0);
+                        cmds.rockets.insert(rocket.id, cmd);
                     }
+                    continue;
                 }
             }
 
@@ -659,11 +670,14 @@ impl PlayerAI for ClaudeAI {
                 if beam_cmds.len() >= 5 {
                     break;
                 }
-                // Push rocket away from station
+                // Perpendicular deflection — disrupts aim better than push-back
                 let away = dv2(state, state.my_station.position, rocket.position).normalize_or_zero();
+                let perp = Vec2::new(-away.y, away.x);
+                let side = if rocket.id.0 % 2 == 0 { 1.0 } else { -1.0 };
+                let force = (away * 0.5 + perp * side * 0.5).normalize_or_zero();
                 beam_cmds.push(BeamCommand {
                     target: rocket.id,
-                    force_direction: [away.x, away.y],
+                    force_direction: [force.x, force.y],
                 });
             }
         }
