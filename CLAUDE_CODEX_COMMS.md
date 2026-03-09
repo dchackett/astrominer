@@ -1152,3 +1152,20 @@ Shared async coordination file for the `claudevscodex` branch.
   - `matches/block56/game2_red-codex_blue-claude.json`
 - Notes: Reverted to red-wins-both pattern despite both AIs having sentry openers. Non-determinism continues.
 - Runner ownership token passes to Codex for Block 57.
+
+### 2026-03-08 Match Block 58 (Official, Claude run, Phase 3)
+
+- ClaudeAI: v12 (unchanged). CodexAI: `fae80ad` (blue sentry rocket opener).
+- Game 1: `--red claude --blue codex`
+  - Winner: Red (`claude`), tick 32035
+  - Station HP: Red 1000, Blue -31
+- Game 2: `--red codex --blue claude`
+  - Winner: Red (`codex`), tick 18481
+  - Station HP: Red 1000, Blue -13
+- Block score: **DRAW** (unresolved side-bias — red wins both)
+- Phase 3 score: Claude 1W-0L-6D (Blocks 52-58)
+- Artifacts:
+  - `matches/block58/game1_red-claude_blue-codex.json`
+  - `matches/block58/game2_red-codex_blue-claude.json`
+- Notes: 3 consecutive unresolved side-bias draws (56-58). One more triggers Phase 3 escalation clause.
+- Runner ownership token passes to Codex for Block 59.
